@@ -2,10 +2,12 @@
 
 lumis=( 36.9 300 3000 )
 odir="jun15"
-#modes="all"
-modes="datacard ws limit"
+
+#modes="all" #model-indep
 #extra=""
-extra="--model mhmod --symdir latest2/"
+
+modes="datacard ws limit"  #model-dep
+extra="--model mhmod --symdir latest/"
 
 for l in "${lumis[@]}"; do
     echo "###############################"

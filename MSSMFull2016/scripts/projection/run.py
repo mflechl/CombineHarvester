@@ -23,14 +23,14 @@ def main(argv):
   global symdir,basedir,logfile
 
   parser = argparse.ArgumentParser(description='Steer the projection')
-  parser.add_argument('mode', nargs='*',                         default=['all'],  choices=['all','datacard','ws','limit','mlfit','np'],     help='Mode of operation')
-  parser.add_argument('--lumi',     dest='lumi',     type=float, default=baselumi,                                    help='Luminosity in fb-1')
-  parser.add_argument('--nosyst',   dest='syst', nargs='?',      default=True, const=False,                           help='Flag to disable ystematics')
-  parser.add_argument('--scale',    dest='scale',                default='none',   choices=['all','bbb','none'],      help='Scaling of uncertainties. Options: all, bbb, none')
-  parser.add_argument('--model',    dest='model',                default='none',   choices=['mhmod','hmssm','none'],  help='Model-(in)dependent limits. Options: none, mhmod, hmssm')
-  parser.add_argument('--loglevel', dest='loglevel', type=int,   default=1,                                           help='Verbosity, 0-essential, 1-most commands, 2-all commands')
-  parser.add_argument('--outdir',   dest='outdir',               default=mdir,                                        help='root of output dir name (default: date/time)')
-  parser.add_argument('--symdir',   dest='symdir',               default='latest/',                                   help='Symlink of output dir (change when running parallel!)')
+  parser.add_argument('mode', nargs='*',                       default=['all'], choices=['all','datacard','ws','limit','mlfit','np'],     help='Mode of operation')
+  parser.add_argument('--lumi',     dest='lumi',   type=float, default=baselumi,                                      help='Luminosity in fb-1')
+  parser.add_argument('--nosyst',   dest='syst', nargs='?',    default=True, const=False,                             help='Flag to disable ystematics')
+  parser.add_argument('--scale',    dest='scale',              default='none',  choices=['all','bbb','scen2','none'], help='Scaling of uncertainties. Options: all, bbb, scen2, none')
+  parser.add_argument('--model',    dest='model',              default='none',  choices=['mhmod','hmssm','none'],     help='Model-(in)dependent limits. Options: none, mhmod, hmssm')
+  parser.add_argument('--loglevel', dest='loglevel', type=int, default=1,                                             help='Verbosity, 0-essential, 1-most commands, 2-all commands')
+  parser.add_argument('--outdir',   dest='outdir',             default=mdir,                                          help='root of output dir name (default: date/time)')
+  parser.add_argument('--symdir',   dest='symdir',             default='latest/',                                     help='Symlink of output dir (change when running parallel!)')
 
   args = parser.parse_args()
 
@@ -81,18 +81,32 @@ def main(argv):
     make_pcall(pcall,'Producing data cards for model '+model,0)
   ############################################## DATACARD
 
+  #https://indico.cern.ch/event/718592/contributions/3042780/attachments/1669046/2676739/HFuture-Proj-June.pdf#page9
+  #https://cms-hcomb.gitbooks.io/combine/content/part3/nonstandard.html#scaling-constraints
+  #https://twiki.cern.ch/twiki/bin/viewauth/CMS/YR2018Systematics
   ############################################## WORKSPACE
   if 'ws' in args.mode:
-    scale_bbb='--X-nuisance-function \'CMS_htt_.*bin_[0-9]+\' \'"expr::lumisyst(\\"1/sqrt(@0)\\",lumi[1])"\''
-    scale_all='--X-nuisance-function \'CMS_+\' \'"expr::lumisyst(\\"1/sqrt(@0)\\",lumi[1])"\''  +  ' --X-nuisance-function \'lumi_+\' \'"expr::lumisyst(\\"1/sqrt(@0)\\",lumi[1])"\''
+    scale_bbb='--X-nuisance-function \'CMS_htt_.*bin_[0-9]+\' \'"expr::scaleBBB(\\"1/sqrt(@0)\\",lumi[1])"\''
+    scale_all='--X-nuisance-function \'CMS_+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\''  +  ' --X-nuisance-function \'lumi_+\' \'"expr::scaleLumi(\\"1/sqrt(@0)\\",lumi[1])"\''
+
+    scale_no_floor=' --X-nuisance-group-function \'no_floor\'   \'"expr::scaleNoFloor(\\"1/sqrt(@0)\\",lumi[1])"\''
+    scale_eff_m   =' --X-nuisance-group-function \'eff_m\'      \'"expr::scaleEffM(\\"max(0.25,1/sqrt(@0))\\",lumi[1])"\''
+    scale_eff_e   =' --X-nuisance-group-function \'eff_e\'      \'"expr::scaleEffE(\\"max(0.50,1/sqrt(@0))\\",lumi[1])"\''
+    scale_eff_t   =' --X-nuisance-group-function \'eff_t\'      \'"expr::scaleEffT(\\"max(0.50,1/sqrt(@0))\\",lumi[1])"\''
+    scale_eff_b   =' --X-nuisance-group-function \'eff_t\'      \'"expr::scaleEffB(\\"max(0.50,1/sqrt(@0))\\",lumi[1])"\''
+    scale_jf_syst =' --X-nuisance-group-function \'jf_syst\'    \'"expr::scaleJfSyst(\\"max(0.50,1/sqrt(@0))\\",lumi[1])"\''
+    scale_theory  =' --X-nuisance-group-function \'theory\'     \'0.5\''
+    scale_lumi    =' --X-nuisance-group-function \'luminosity\' \'"expr::scaleLumi(\\"max(0.37,1/sqrt(@0))\\",lumi[1])"\''    #1.0/2.7=0.37
 
     scaleterm=''
     if scale=='all':
       scaleterm=scale_all
     if scale=='bbb':
       scaleterm=scale_bbb
-
+    if scale=='scen2':
+      scaleterm=scale_bbb+scale_no_floor+scale_eff_m+scale_eff_e+scale_eff_t+scale_eff_b+scale_jf_syst+scale_theory+scale_lumi
 #    pcall='combineTool.py -M T2W -o ws.root --parallel 8 -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel --PO \'"map=^.*/ggH.?$:r_ggH[0,0,200]"\' --PO \'"map=^.*/bbH$:r_bbH[0,0,200]"\' '+scaleterm+' -i output/'+symdir+'* &> '+basedir+'/log_ws.txt'
+#    pcall_base='combineTool.py -M T2W -v 3 -o ws.root --parallel 8 '+scaleterm+' -i output/'+symdir+'*'
     pcall_base='combineTool.py -M T2W -o ws.root --parallel 8 '+scaleterm+' -i output/'+symdir+'*'
 
     if model=='none':
