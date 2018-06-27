@@ -129,7 +129,7 @@ def main(argv):
       proc=[ 'ggH' , 'bbH' ]
       make_pcall('echo Processes: '+str(proc)+' > '+basedir+'/log_lim.txt','',2)
       for p in proc:
-        pcall1='combineTool.py -m "90,100,110,120,130,140,160,180,200,250,350,400,450,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2300,2600,2900,3200" -M Asymptotic -t -1 --parallel 7 --rAbsAcc 0 --rRelAcc 0.0005 --boundlist input/mssm_boundaries-100.json --setPhysicsModelParameters r_ggH=0,r_bbH=0,lumi='+str(lumiscale)+' --freezeNuisances '+nfreeze+' --redefineSignalPOIs r_'+p+' -d output/'+symdir+'cmb/ws.root --there -n ".'+p+'" &>> '+basedir+'/log_lim.txt'
+        pcall1='combineTool.py -m "90,100,110,120,130,140,160,180,200,250,350,400,450,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2300,2600,2900,3200" -M Asymptotic -t -1 --parallel 7 --rAbsAcc 0 --rRelAcc 0.0005 --boundlist input/mssm_boundaries-100.json --setPhysicsModelParameters r_ggH=0,r_bbH=0,lumi='+str(lumiscale)+' --freezeNuisances '+nfreeze+' --floatAllNuisances 1 --redefineSignalPOIs r_'+p+' -d output/'+symdir+'cmb/ws.root --there -n ".'+p+'" &>> '+basedir+'/log_lim.txt'
         pcall2='combineTool.py -M CollectLimits output/'+symdir+'cmb/higgsCombine.'+p+'*.root --use-dirs -o "output/'+symdir+p+'.json" &>> '+basedir+'/log_lim.txt'
         pcall3='python scripts/plotMSSMLimits.py --logy --logx --show exp output/'+symdir+p+'_cmb.json --cms-sub="Preliminary" -o output/'+symdir+p+'_cmb --process=\''+p[0:2]+'#phi\' --title-right="'+str(args.lumi)+' fb^{-1} (13 TeV)" --use-hig-17-020-style >> '+basedir+'/log_lim.txt'
         make_pcall(pcall1,'Producing  limit for '+p,0)
@@ -143,7 +143,7 @@ def main(argv):
       it=0
       while True:
         it+=1
-        pcall='combineTool.py -M AsymptoticGrid '+js+' -d cmb/ws.root --setPhysicsModelParameters lumi='+str(lumiscale)+' --freezeNuisances '+nfreeze+' -t -1 --parallel 8 &>> '+basedir+'/log_lim.txt'
+        pcall='combineTool.py -M AsymptoticGrid '+js+' -d cmb/ws.root --setPhysicsModelParameters lumi='+str(lumiscale)+' --freezeNuisances '+nfreeze+' --floatAllNuisances 1 -t -1 --parallel 8 &>> '+basedir+'/log_lim.txt'
         make_pcall(pcall,'Producing  limit for '+model,0)
         ret=os.popen('tail -1 '+basedir+'/log_lim.txt').read().rstrip()
         if 'Replacing existing TGraph2D' in ret: 
@@ -165,7 +165,7 @@ def main(argv):
   if 'mlfit' in args.mode:
 
     mllog=basedir+'log_mlfit.txt'
-    pcall2='combineTool.py -M MaxLikelihoodFit --parallel 8 --setPhysicsModelParameters r_ggH=0.0,r_bbH=0.0,lumi='+str(lumiscale)+' --freezeNuisances '+nfreeze+' --setPhysicsModelParameterRanges r_ggH=-0.000001,0.000001 --setPhysicsModelParameterRanges r_bbH=-0.000001,0.000001 -d cmb/ws.root --redefineSignalPOIs r_ggH --there -m '+str(smass)+' --boundlist '+rundir+'/input/mssm_boundaries.json --minimizerTolerance 0.1 --minimizerStrategy 0 --name ".res" '+' &>'+mllog
+    pcall2='combineTool.py -M MaxLikelihoodFit --parallel 8 --setPhysicsModelParameters r_ggH=0.0,r_bbH=0.0,lumi='+str(lumiscale)+' --freezeNuisances '+nfreeze+' --floatAllNuisances 1 --setPhysicsModelParameterRanges r_ggH=-0.000001,0.000001 --setPhysicsModelParameterRanges r_bbH=-0.000001,0.000001 -d cmb/ws.root --redefineSignalPOIs r_ggH --there -m '+str(smass)+' --boundlist '+rundir+'/input/mssm_boundaries.json --minimizerTolerance 0.1 --minimizerStrategy 0 --name ".res" '+' &>'+mllog
     make_pcall(pcall2, 'Running ML fit')
     make_pcall('mv cmb/mlfit.res.root cmb/mlfit.root','Renaming mlfit output files',2)
 
@@ -186,9 +186,9 @@ def main(argv):
     os.chdir(idir)
     make_print( '### Make NP plots... in dir: '+idir)
     pcall4=[ 
-      'combineTool.py -t -1 -M Impacts -d ../ws.root -m '+str(smass)+' --setPhysicsModelParameters r_bbH=0,r_ggH=0,lumi='+str(lumiscale)+' --setPhysicsModelParameterRanges r_ggH=-1.0,1.0 --doInitialFit --robustFit 1 --minimizerAlgoForMinos Minuit2,Migrad --redefineSignalPOIs r_ggH --freezeNuisances '+nfreeze+exvar+' &>log1.txt',
-      'combineTool.py -t -1 -M Impacts -d ../ws.root -m '+str(smass)+' --setPhysicsModelParameters r_bbH=0,r_ggH=0,lumi='+str(lumiscale)+' --setPhysicsModelParameterRanges r_ggH=-1.0,1.0 --robustFit 1 --doFits --minimizerAlgoForMinos Minuit2,Migrad  --redefineSignalPOIs r_ggH --freezeNuisances '+nfreeze+ ' --allPars --parallel 8'+exvar+' &>log2.txt',
-      'combineTool.py -M Impacts -d ../ws.root --allPars --redefineSignalPOIs r_ggH --setPhysicsModelParameters r_bbH=0,r_ggH=0,lumi='+str(lumiscale)+' --exclude r_bbH,lumi -m '+str(smass)+' -o impacts.json'+exvar+' &>log3.txt',
+      'combineTool.py -t -1 -M Impacts -d ../ws.root -m '+str(smass)+' --setPhysicsModelParameters r_bbH=0,r_ggH=0,lumi='+str(lumiscale)+' --setPhysicsModelParameterRanges r_ggH=-1.0,1.0 --doInitialFit --robustFit 1 --minimizerAlgoForMinos Minuit2,Migrad --redefineSignalPOIs r_ggH --freezeNuisances '+nfreeze+' --floatAllNuisances 1 '+exvar+' &>log1.txt',
+      'combineTool.py -t -1 -M Impacts -d ../ws.root -m '+str(smass)+' --setPhysicsModelParameters r_bbH=0,r_ggH=0,lumi='+str(lumiscale)+' --setPhysicsModelParameterRanges r_ggH=-1.0,1.0 --robustFit 1 --doFits --minimizerAlgoForMinos Minuit2,Migrad  --redefineSignalPOIs r_ggH --freezeNuisances '+nfreeze+ ' --floatAllNuisances 1 --allPars --parallel 8'+exvar+' &>log2.txt',
+      'combineTool.py -M Impacts -d ../ws.root --allPars --redefineSignalPOIs r_ggH --setPhysicsModelParameters r_bbH=0,r_ggH=0,lumi='+str(lumiscale)+' --floatAllNuisances 1 --exclude r_bbH,lumi -m '+str(smass)+' -o impacts.json'+exvar+' &>log3.txt',
       'plotImpacts.py -i impacts.json -o impacts --transparent &>log4.txt',
       'cp -p impacts.pdf ../',
       ]
