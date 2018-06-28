@@ -31,6 +31,7 @@ def main(argv):
   parser.add_argument('--loglevel', dest='loglevel', type=int, default=1,                                             help='Verbosity, 0-essential, 1-most commands, 2-all commands')
   parser.add_argument('--outdir',   dest='outdir',             default=mdir,                                          help='root of output dir name (default: date/time)')
   parser.add_argument('--symdir',   dest='symdir',             default='latest/',                                     help='Symlink of output dir (change when running parallel!)')
+  parser.add_argument('--dryrun',   dest='dryrun', nargs='?',  default=False, const=True,                             help='Dry run, do not execute commands')
 
   args = parser.parse_args()
 
@@ -49,6 +50,9 @@ def main(argv):
   if not symdir.endswith('/'): symdir+='/'
   basedir=rundir+'output/'+symdir
   logfile=basedir+'log.txt'
+
+  global dryrun
+  dryrun=args.dryrun
 
   if 'all' in args.mode:
     args.mode.remove('all')
