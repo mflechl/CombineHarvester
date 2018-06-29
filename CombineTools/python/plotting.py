@@ -1478,7 +1478,8 @@ def DrawCMSLogo(pad, cmsText, extraText, iPosX, relPosX, relPosY, relExtraDY, ex
         latex.SetTextFont(extraTextFont)
         latex.SetTextSize(extraTextSize * t * pad_ratio)
         latex.SetTextAlign(align_)
-        latex.DrawLatex(posX_, posY_, extraText)
+#        latex.DrawLatex(posX_, posY_, extraText)
+        latex.DrawLatex(l+0.13, 1 - t + lumiTextOffset * t +0.003, extraText)
 
 
 def PositionedLegend(width, height, pos, offset, horizontaloffset=None):
