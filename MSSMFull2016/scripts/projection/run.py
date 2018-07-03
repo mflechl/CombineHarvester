@@ -68,6 +68,7 @@ def main(argv):
   make_print ( 'Scaling uncertainties: '+scale )
   make_print ( 'Model: '+model )
   make_print ( 'Writing to '+physdir )
+  make_print ( 'Symlink dir '+basedir )
 
   os.chdir(rundir)
   ############################################## DATACARD
@@ -87,13 +88,13 @@ def main(argv):
   ############################################## WORKSPACE
   if 'ws' in args.mode:
     scale_bbb='--X-nuisance-function \'CMS_htt_.*bin_[0-9]+\' \'"expr::scaleBBB(\\"1/sqrt(@0)\\",lumi[1])"\''
-    scale_all='--X-nuisance-function \'CMS_+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\''  +  ' --X-nuisance-function \'lumi_+\' \'"expr::scaleLumi(\\"1/sqrt(@0)\\",lumi[1])"\''
+    scale_all='--X-nuisance-function \'CMS_+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\''  +  ' --X-nuisance-function \'lumi_+\' \'"expr::scaleLumi(\\"1/sqrt(@0)\\",lumi[1])"\'' + '--X-nuisance-function \'ff_.*_syst+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\'' + '--X-nuisance-function \'ff_.*_stat+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\'' + '--X-nuisance-function \'QCDscale_+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\''
 
     scale_no_floor=' --X-nuisance-group-function \'no_floor\'   \'"expr::scaleNoFloor(\\"1/sqrt(@0)\\",lumi[1])"\''
     scale_eff_m   =' --X-nuisance-group-function \'eff_m\'      \'"expr::scaleEffM(\\"max(0.25,1/sqrt(@0))\\",lumi[1])"\''
     scale_eff_e   =' --X-nuisance-group-function \'eff_e\'      \'"expr::scaleEffE(\\"max(0.50,1/sqrt(@0))\\",lumi[1])"\''
     scale_eff_t   =' --X-nuisance-group-function \'eff_t\'      \'"expr::scaleEffT(\\"max(0.50,1/sqrt(@0))\\",lumi[1])"\''
-    scale_eff_b   =' --X-nuisance-group-function \'eff_t\'      \'"expr::scaleEffB(\\"max(0.50,1/sqrt(@0))\\",lumi[1])"\''
+    scale_eff_b   =' --X-nuisance-group-function \'eff_b\'      \'"expr::scaleEffB(\\"max(0.50,1/sqrt(@0))\\",lumi[1])"\''
     scale_jf_syst =' --X-nuisance-group-function \'jf_syst\'    \'"expr::scaleJfSyst(\\"max(0.50,1/sqrt(@0))\\",lumi[1])"\''
     scale_theory  =' --X-nuisance-group-function \'theory\'     \'0.5\''
     scale_lumi    =' --X-nuisance-group-function \'luminosity\' \'"expr::scaleLumi(\\"max(0.37,1/sqrt(@0))\\",lumi[1])"\''    #1.0/2.7=0.37
@@ -106,8 +107,8 @@ def main(argv):
     if scale=='scen2':
       scaleterm=scale_bbb+scale_no_floor+scale_eff_m+scale_eff_e+scale_eff_t+scale_eff_b+scale_jf_syst+scale_theory+scale_lumi
 #    pcall='combineTool.py -M T2W -o ws.root --parallel 8 -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel --PO \'"map=^.*/ggH.?$:r_ggH[0,0,200]"\' --PO \'"map=^.*/bbH$:r_bbH[0,0,200]"\' '+scaleterm+' -i output/'+symdir+'* &> '+basedir+'/log_ws.txt'
-#    pcall_base='combineTool.py -M T2W -v 3 -o ws.root --parallel 8 '+scaleterm+' -i output/'+symdir+'*'
-    pcall_base='combineTool.py -M T2W -o ws.root --parallel 8 '+scaleterm+' -i output/'+symdir+'*'
+    pcall_base='combineTool.py -M T2W -v 3 -o ws.root --parallel 8 '+scaleterm+' -i output/'+symdir+'*'
+#    pcall_base='combineTool.py -M T2W -o ws.root --parallel 8 '+scaleterm+' -i output/'+symdir+'*'
 
     if model=='none':
       pcall=pcall_base+' -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel --PO \'"map=^.*/ggH.?$:r_ggH[0,0,200]"\' --PO \'"map=^.*/bbH$:r_bbH[0,0,200]"\''
