@@ -10,7 +10,7 @@ git clone git@github.com:cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnaly
 cd HiggsAnalysis/CombinedLimit  
 git fetch origin  
 #git tag #check which tag is most recent  
-git checkout v6.3.2  #v6.3.2 as of May 2018
+git checkout v6.3.2  #v6.3.2 as of May 2018  
 cd ../..  
 
 #git clone https://github.com/mflechl/CombineHarvester.git CombineHarvester  

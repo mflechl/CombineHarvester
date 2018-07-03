@@ -31,15 +31,22 @@ def main(argv):
   parser.add_argument('--loglevel', dest='loglevel', type=int, default=1,                                             help='Verbosity, 0-essential, 1-most commands, 2-all commands')
   parser.add_argument('--outdir',   dest='outdir',             default=mdir,                                          help='root of output dir name (default: date/time)')
   parser.add_argument('--symdir',   dest='symdir',             default='latest/',                                     help='Symlink of output dir (change when running parallel!)')
+  parser.add_argument('--dryrun',   dest='dryrun', nargs='?',  default=False, const=True,                             help='Dry run, do not execute commands')
+  parser.add_argument('--lxb',      dest='lxb', nargs='?',     default=False, const=True,                             help='Run on lxbatch (AsymptoticGrid)')
 
   args = parser.parse_args()
 
   lumiscale=round(args.lumi/baselumi,2)
+  cme='13' if (lumiscale>3) else '14'  #
+
   syst=args.syst
   scale=args.scale
   loglevel=args.loglevel
   model=args.model
 #  mdir+='_lumi-'+str(args.lumi)
+  customdir=False
+  if mdir != args.outdir:
+    customdir=True
   mdir=args.outdir+'_lumi-'+str(args.lumi)
   if not syst: mdir+='_nosyst'
   if not scale=='none': mdir+='_scale-'+scale
@@ -50,6 +57,10 @@ def main(argv):
   basedir=rundir+'output/'+symdir
   logfile=basedir+'log.txt'
 
+  global dryrun
+  dryrun=args.dryrun
+  lxb=args.lxb
+
   if 'all' in args.mode:
     args.mode.remove('all')
     args.mode.append('datacard')
@@ -58,7 +69,7 @@ def main(argv):
     args.mode.append('mlfit')
     args.mode.append('np')
 
-  if 'datacard' in args.mode:
+  if customdir or 'datacard' in args.mode:
     create_output_dir()
 
   make_print ( ' '.join(sys.argv)+' #COMMAND' , 0)
@@ -113,9 +124,9 @@ def main(argv):
     if model=='none':
       pcall=pcall_base+' -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel --PO \'"map=^.*/ggH.?$:r_ggH[0,0,200]"\' --PO \'"map=^.*/bbH$:r_bbH[0,0,200]"\''
     elif model=='mhmod':
-      pcall=pcall_base+' -P CombineHarvester.CombinePdfs.MSSM:MSSM --PO filePrefix=$PWD/shapes/Models/ --PO modelFiles=13TeV,mhmodp_mu200_13TeV.root,1 --PO MSSM-NLO-Workspace=$PWD/shapes/Models/higgs_pt_v3_mssm_mode.root'
+      pcall=pcall_base+' -P CombineHarvester.CombinePdfs.MSSM:MSSM --PO filePrefix=$PWD/shapes/Models/ --PO modelFiles='+cme+'TeV,mhmodp_mu200_'+cme+'TeV.root,1 --PO MSSM-NLO-Workspace=$PWD/shapes/Models/higgs_pt_v3_mssm_mode.root'
     elif model=='hmssm':
-      pcall=pcall_base+' -P CombineHarvester.CombinePdfs.MSSM:MSSM --PO filePrefix=$PWD/shapes/Models/ --PO modelFiles=13TeV,hMSSM_13TeV.root,1 --PO MSSM-NLO-Workspace=$PWD/shapes/Models/higgs_pt_v3_mssm_mode.root'
+      pcall=pcall_base+' -P CombineHarvester.CombinePdfs.MSSM:MSSM --PO filePrefix=$PWD/shapes/Models/ --PO modelFiles='+cme+'TeV,hMSSM_'+cme+'TeV.root,1 --PO MSSM-NLO-Workspace=$PWD/shapes/Models/higgs_pt_v3_mssm_mode.root'
 
     pcall+=' &> '+basedir+'/log_ws.txt'
     make_pcall(pcall,'Producing workspace',0)
@@ -132,29 +143,50 @@ def main(argv):
       for p in proc:
         pcall1='combineTool.py -m "90,100,110,120,130,140,160,180,200,250,350,400,450,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2300,2600,2900,3200" -M Asymptotic -t -1 --parallel 7 --rAbsAcc 0 --rRelAcc 0.0005 --boundlist input/mssm_boundaries-100.json --setPhysicsModelParameters r_ggH=0,r_bbH=0,lumi='+str(lumiscale)+' --freezeNuisances '+nfreeze+' --floatAllNuisances 1 --redefineSignalPOIs r_'+p+' -d output/'+symdir+'cmb/ws.root --there -n ".'+p+'" &>> '+basedir+'/log_lim.txt'
         pcall2='combineTool.py -M CollectLimits output/'+symdir+'cmb/higgsCombine.'+p+'*.root --use-dirs -o "output/'+symdir+p+'.json" &>> '+basedir+'/log_lim.txt'
-        pcall3='python scripts/plotMSSMLimits.py --logy --logx --show exp output/'+symdir+p+'_cmb.json --cms-sub="Preliminary" -o output/'+symdir+p+'_cmb --process=\''+p[0:2]+'#phi\' --title-right="'+str(args.lumi)+' fb^{-1} (13 TeV)" --use-hig-17-020-style >> '+basedir+'/log_lim.txt'
+        pcall3='python scripts/plotMSSMLimits.py --logy --logx --show exp output/'+symdir+p+'_cmb.json --cms-sub="Preliminary" -o output/'+symdir+p+'_cmb --process=\''+p[0:2]+'#phi\' --title-right="'+str(args.lumi)+' fb^{-1} ('+cme+' TeV)" --use-hig-17-020-style >> '+basedir+'/log_lim.txt'
         make_pcall(pcall1,'Producing  limit for '+p,0)
         make_pcall(pcall2,'Collecting limit for '+p,0)
         make_pcall(pcall3,'Plotting   limit for '+p,0)
     else:
       os.chdir(basedir)
       dp='../../'
-      if model=='mhmod': js=dp+'./scripts/mssm_asymptotic_grid_mhmodp.json'
-      if model=='hmssm': js=dp+'./scripts/mssm_asymptotic_grid_hMSSM.json'
+      if model=='mhmod':
+        js=dp+'./scripts/mssm_asymptotic_grid_mhmodp.json'
+        scenlabel='m_{h}^{mod+} scenario'
+        modelfile='mhmodp_mu200_'+cme+'TeV.root'
+      if model=='hmssm':
+        js=dp+'./scripts/mssm_asymptotic_grid_hMSSM.json'
+        scenlabel='hMSSM scenario'
+        modelfile='hMSSM_'+cme+'TeV.root'
       it=0
+      ret=''
       while True:
         it+=1
-        pcall='combineTool.py -M AsymptoticGrid '+js+' -d cmb/ws.root --setPhysicsModelParameters lumi='+str(lumiscale)+' --freezeNuisances '+nfreeze+' --floatAllNuisances 1 -t -1 --parallel 8 &>> '+basedir+'/log_lim.txt'
-        make_pcall(pcall,'Producing  limit for '+model,0)
+        subarg='--parallel 8'
+#        if lxb: subarg='--job-mode lxbatch --task-name '+mdir+'_grid --sub-opts \'-q 8nh\' --merge 20'
+        if lxb: subarg='--job-mode lxbatch --task-name '+mdir+'_grid --sub-opts \'-q 1nd\' --merge 10' #be on the safe side for now - 3000/fb jobs could take much longer
+
+        pcall='combineTool.py -M AsymptoticGrid '+js+' -d cmb/ws.root --setPhysicsModelParameters lumi='+str(lumiscale)+' --freezeNuisances '+nfreeze+' --floatAllNuisances 1 -t -1 '+subarg+' &>> '+basedir+'/log_lim.txt'
+        make_pcall(pcall,'Producing limit for '+model,0)
         ret=os.popen('tail -1 '+basedir+'/log_lim.txt').read().rstrip()
         if 'Replacing existing TGraph2D' in ret: 
+          break
+        if lxb:
           break
         if it>10: 
           make_print( 'Stopping after restarting AsymptoticGrid for ten times. There is probably some problem, rather give up than ending up in an infinite loop' )
           break
-        
-      make_print( 'python ../CombineTools/scripts/plotLimitGrid.py asymptotic_grid.root --scenario-label="m_{h}^{mod+} scenario" --output="mssm_mhmodp_cmb" --title-right="36.9 fb^{-1} (13 TeV)" --cms-sub="Preliminary" --contours="exp-2,exp-1,exp0,exp+1,exp+2,obs" --model_file=$PWD/shapes/Models/mhmodp_mu200_13TeV.root' )
-      make_print( '#Run the above on lxplus: /afs/cern.ch/work/m/mflechl/mssm_projection_tmp/CMSSW_7_4_7/src/CombineHarvester/MSSMFull2016' )
+
+      if 'New jobs were created' in ret: #jobs were just submitted, only do this on final run
+        print 'New jobs were created... rerun limit step once they are done to produce plots.'
+      else:
+        pcall='python ../../../CombineTools/scripts/plotLimitGrid.py asymptotic_grid.root --scenario-label="'+scenlabel+'" --output="mssm_'+model+'_cmb" --title-right="'+str(args.lumi)+' fb^{-1} ('+cme+' TeV)" --cms-sub="Preliminary" --contours="exp-2,exp-1,exp0,exp+1,exp+2,obs" --x-range 90,2000 --model_file='+rundir+'shapes/Models/'+modelfile
+        import socket
+        if 'lxplus' in socket.gethostname():
+          make_pcall(pcall,'Producing limit plots for '+model,0)
+        else: #for some reason, does not run on heplx
+          make_print( pcall )
+          make_print( '#Run the above on lxplus: /afs/cern.ch/work/m/mflechl/mssm_projection_tmp/CMSSW_7_4_7/src/CombineHarvester/MSSMFull2016' )
   ############################################## LIMIT
 
   ############################################## NP
