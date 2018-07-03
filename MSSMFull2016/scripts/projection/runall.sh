@@ -1,12 +1,16 @@
 #!/bin/bash
 
-#lumis=( 36.9 300 3000 )
-lumis=( 300 )
+lumis=( 36.9 300 3000 )
+#lumis=( 300 )
 odir="jul03"
 
-modes="all" #model-indep
+#modes="all" #model-indep
 #extra=""
-extra="--symdir latest300"
+#extra="--symdir latest300"
+
+modes="datacard ws limit"  #model-dep step 1
+#modes="limit"              #model-dep step 2
+extra="--model mhmod --symdir latest/ --lxb"
 
 #modes="datacard ws limit"  #model-dep
 #extra="--model mhmod --symdir latest/"
