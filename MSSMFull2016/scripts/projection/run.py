@@ -99,7 +99,7 @@ def main(argv):
   ############################################## WORKSPACE
   if 'ws' in args.mode:
     scale_bbb='--X-nuisance-function \'CMS_htt_.*bin_[0-9]+\' \'"expr::scaleBBB(\\"1/sqrt(@0)\\",lumi[1])"\''
-    scale_all='--X-nuisance-function \'CMS_+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\''  +  ' --X-nuisance-function \'lumi_+\' \'"expr::scaleLumi(\\"1/sqrt(@0)\\",lumi[1])"\'' + '--X-nuisance-function \'ff_.*_syst+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\'' + '--X-nuisance-function \'ff_.*_stat+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\'' + '--X-nuisance-function \'QCDscale_+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\''
+    scale_all='--X-nuisance-function \'CMS_+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\''  +  ' --X-nuisance-function \'lumi_+\' \'"expr::scaleLumi(\\"1/sqrt(@0)\\",lumi[1])"\'' + ' --X-nuisance-function \'ff_.*_syst+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\'' + ' --X-nuisance-function \'ff_.*_stat+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\'' + ' --X-nuisance-function \'QCDscale_+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\''
 
     scale_no_floor=' --X-nuisance-group-function \'no_floor\'   \'"expr::scaleNoFloor(\\"1/sqrt(@0)\\",lumi[1])"\''
     scale_eff_m   =' --X-nuisance-group-function \'eff_m\'      \'"expr::scaleEffM(\\"max(0.25,1/sqrt(@0))\\",lumi[1])"\''
