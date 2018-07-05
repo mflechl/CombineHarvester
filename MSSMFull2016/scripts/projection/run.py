@@ -13,7 +13,7 @@ symdir='latest/'
 basedir=rundir+'output/'+symdir
 logfile=basedir+'log.txt'
 
-baselumi=36.9
+baselumi=35.9
 dryrun=False
 
 def main(argv):
@@ -198,7 +198,7 @@ def main(argv):
   if 'mlfit' in args.mode:
 
     mllog=basedir+'log_mlfit.txt'
-    pcall2='combineTool.py -M MaxLikelihoodFit --parallel 8 --setPhysicsModelParameters r_ggH=0.0,r_bbH=0.0,lumi='+str(lumiscale)+' --freezeNuisances '+nfreeze+' --floatAllNuisances 1 --setPhysicsModelParameterRanges r_ggH=-0.000001,0.000001 --setPhysicsModelParameterRanges r_bbH=-0.000001,0.000001 -d cmb/ws.root --redefineSignalPOIs r_ggH --there -m '+str(smass)+' --boundlist '+rundir+'/input/mssm_boundaries.json --minimizerTolerance 0.1 --minimizerStrategy 0 --name ".res" '+' &>'+mllog
+    pcall2='combineTool.py -M MaxLikelihoodFit --parallel 8 --setPhysicsModelParameters r_ggH=0.0,r_bbH=0.0,lumi='+str(lumiscale)+' --freezeNuisances '+nfreeze+' --floatAllNuisances 1 --setPhysicsModelParameterRanges r_ggH=-0.000001,0.000001 --setPhysicsModelParameterRanges r_bbH=-0.000001,0.000001 -d cmb/ws.root --redefineSignalPOIs r_ggH --there -m '+str(smass)+' --boundlist '+rundir+'/input/mssm_boundaries-100.json --minimizerTolerance 0.1 --minimizerStrategy 0 --name ".res" '+' &>'+mllog
     make_pcall(pcall2, 'Running ML fit')
     make_pcall('mv cmb/mlfit.res.root cmb/mlfit.root','Renaming mlfit output files',2)
 
