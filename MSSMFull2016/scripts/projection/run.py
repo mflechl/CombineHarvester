@@ -118,7 +118,8 @@ def main(argv):
     if scale=='scen2':
       scaleterm=scale_bbb+scale_no_floor+scale_eff_m+scale_eff_e+scale_eff_t+scale_eff_b+scale_jf_syst+scale_theory+scale_lumi
 #    pcall='combineTool.py -M T2W -o ws.root --parallel 8 -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel --PO \'"map=^.*/ggH.?$:r_ggH[0,0,200]"\' --PO \'"map=^.*/bbH$:r_bbH[0,0,200]"\' '+scaleterm+' -i output/'+symdir+'* &> '+basedir+'/log_ws.txt'
-    pcall_base='combineTool.py -M T2W -v 3 -o ws.root --parallel 8 '+scaleterm+' -i output/'+symdir+'*'
+#    pcall_base='combineTool.py -M T2W -v 3 -o ws.root --parallel 8 '+scaleterm+' -i output/'+symdir+'*'
+    pcall_base='combineTool.py -M T2W -o ws.root --parallel 8 '+scaleterm+' -i output/'+symdir+'cmb/*'
 #    pcall_base='combineTool.py -M T2W -o ws.root --parallel 8 '+scaleterm+' -i output/'+symdir+'*'
 
     if model=='none':
