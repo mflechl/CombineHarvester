@@ -3,13 +3,9 @@
 lumis=( 35.9 300 3000 )
 odir="jul05"
 
-#modes="all" #model-indep
+modes="all" #model-indep
 #extra=""
-#extra="--symdir latest300"
-
-modes="datacard ws limit"  #model-dep step 1
-#modes="limit"              #model-dep step 2
-extra="--model mhmod --symdir latest/ --lxb"
+extra="--symdir latest"
 
 #modes="datacard ws limit"  #model-dep
 #extra="--model mhmod --symdir latest/"
