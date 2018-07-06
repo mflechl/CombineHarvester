@@ -12,13 +12,15 @@ extra="--symdir latest"
 
 for l in "${lumis[@]}"; do
     echo "###############################"
-    run.py $modes --lumi $l --outdir $odir  --nosyst $extra
+#    run.py $modes --lumi $l --outdir $odir  --nosyst $extra
     echo "###############################"
-    run.py $modes --lumi $l --outdir $odir --scale scen2 $extra
+#    run.py $modes --lumi $l --outdir $odir --scale scen2 $extra
     echo "###############################"
-    run.py $modes --lumi $l --outdir $odir --scale all $extra
+#    run.py $modes --lumi $l --outdir $odir --scale all $extra
     echo "###############################"
-    run.py $modes --lumi $l --outdir $odir --scale bbb $extra
+#    run.py $modes --lumi $l --outdir $odir --scale bbb $extra
     echo "###############################"
-    run.py $modes --lumi $l --outdir $odir $extra
+#    run.py $modes --lumi $l --outdir $odir $extra
+    echo "###############################"
+    run.py $modes --lumi $l --outdir $odir --scale scen2 --bbb 0.0 $extra
 done

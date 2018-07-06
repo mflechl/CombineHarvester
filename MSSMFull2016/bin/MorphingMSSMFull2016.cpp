@@ -90,6 +90,7 @@ int main(int argc, char** argv) {
   bool real_data = true;
   bool bbH_nlo = true;
   int control_region = 0;
+  float bbb_threshold = 0.4;
   bool check_neg_bins = false;
   bool poisson_bbb = false;
   bool do_w_weighting = true;
@@ -121,6 +122,7 @@ int main(int argc, char** argv) {
     ("output_folder", po::value<string>(&output_folder)->default_value("mssm_run2"))
     ("SM125,h", po::value<string>(&SM125)->default_value(SM125))
     ("control_region", po::value<int>(&control_region)->default_value(control_region))
+    ("bbb_threshold", po::value<float>(&bbb_threshold)->default_value(bbb_threshold))
     ("zmm_fit", po::value<bool>(&zmm_fit)->default_value(zmm_fit))
     ("ttbar_fit", po::value<bool>(&ttbar_fit)->default_value(ttbar_fit))
     ("jetfakes", po::value<bool>(&do_jetfakes)->default_value(do_jetfakes))
@@ -572,31 +574,33 @@ int main(int argc, char** argv) {
     }
   });
 
-  cout << "Generating bbb uncertainties...";
-  auto bbb = ch::BinByBinFactory()
-    .SetPattern("CMS_$ANALYSIS_$BIN_$ERA_$PROCESS_bin_$#")
-    .SetAddThreshold(0.)
-    .SetMergeThreshold(0.4)
-    .SetFixNorm(true)
-    .SetMergeSaturatedBins(false)
-    .SetPoissonErrors(poisson_bbb);
-  for (auto chn : chns) {
-    std::cout << " - Doing bbb for channel " << chn << "\n";
-    bbb.MergeAndAdd(cb.cp().channel({chn}).backgrounds().FilterAll([](ch::Object const* obj) {
-                return BinIsSBControlRegion(obj);
-                }), cb);
+  if (bbb_threshold>1e-9){
+    cout << "Generating bbb uncertainties...";
+    auto bbb = ch::BinByBinFactory()
+      .SetPattern("CMS_$ANALYSIS_$BIN_$ERA_$PROCESS_bin_$#")
+      .SetAddThreshold(0.)
+      .SetMergeThreshold(0.4)
+      .SetFixNorm(true)
+      .SetMergeSaturatedBins(false)
+      .SetPoissonErrors(poisson_bbb);
+    for (auto chn : chns) {
+      std::cout << " - Doing bbb for channel " << chn << "\n";
+      bbb.MergeAndAdd(cb.cp().channel({chn}).backgrounds().FilterAll([](ch::Object const* obj) {
+	    return BinIsSBControlRegion(obj);
+	  }), cb);
+    }
+    // And now do bbb for the control region with a slightly different config:
+    auto bbb_ctl = ch::BinByBinFactory()
+      .SetPattern("CMS_$ANALYSIS_$BIN_$ERA_$PROCESS_bin_$#")
+      .SetAddThreshold(0.)
+      .SetMergeThreshold(0.4)
+      .SetFixNorm(false)  // contrary to signal region, bbb *should* change yield here
+      .SetVerbosity(1);
+    // Will merge but only for non W and QCD processes, to be on the safe side
+    bbb_ctl.MergeBinErrors(cb.cp().process({"QCD", "W"}, false).FilterProcs(BinIsNotSBControlRegion));
+    bbb_ctl.AddBinByBin(cb.cp().process({"QCD", "W"}, false).FilterProcs(BinIsNotSBControlRegion), cb);
+    cout << " done\n";
   }
-  // And now do bbb for the control region with a slightly different config:
-  auto bbb_ctl = ch::BinByBinFactory()
-    .SetPattern("CMS_$ANALYSIS_$BIN_$ERA_$PROCESS_bin_$#")
-    .SetAddThreshold(0.)
-    .SetMergeThreshold(0.4)
-    .SetFixNorm(false)  // contrary to signal region, bbb *should* change yield here
-    .SetVerbosity(1);
-  // Will merge but only for non W and QCD processes, to be on the safe side
-  bbb_ctl.MergeBinErrors(cb.cp().process({"QCD", "W"}, false).FilterProcs(BinIsNotSBControlRegion));
-  bbb_ctl.AddBinByBin(cb.cp().process({"QCD", "W"}, false).FilterProcs(BinIsNotSBControlRegion), cb);
-  cout << " done\n";
 
   if(postfit_plot){
     cb.ForEachSyst([](ch::Systematic *s) {

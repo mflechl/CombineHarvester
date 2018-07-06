@@ -28,6 +28,7 @@ def main(argv):
   parser.add_argument('--lumi',     dest='lumi',   type=float, default=baselumi,                                      help='Luminosity in fb-1')
   parser.add_argument('--nosyst',   dest='syst', nargs='?',    default=True, const=False,                             help='Flag to disable ystematics')
   parser.add_argument('--scale',    dest='scale',              default='none',  choices=['all','bbb','scen2','none'], help='Scaling of uncertainties. Options: all, bbb, scen2, none')
+  parser.add_argument('--bbb',      dest='bbb', type=float,    default=0.4,                                           help='BinByBin threshold. 0 for none; default: 0.4')
   parser.add_argument('--model',    dest='model',              default='none',  choices=['mhmod','hmssm','none'],     help='Model-(in)dependent limits. Options: none, mhmod, hmssm')
   parser.add_argument('--loglevel', dest='loglevel', type=int, default=1,                                             help='Verbosity, 0-essential, 1-most commands, 2-all commands')
   parser.add_argument('--outdir',   dest='outdir',             default=mdir,                                          help='root of output dir name (default: date/time)')
@@ -91,7 +92,7 @@ def main(argv):
   os.chdir(rundir)
   ############################################## DATACARD
   if 'datacard' in args.mode:
-    pcall_base='MorphingMSSMFull2016 --output_folder='+symdir+' --manual_rebin=true --real_data=false'
+    pcall_base='MorphingMSSMFull2016 --output_folder='+symdir+' --manual_rebin=true --real_data=false --bbb_threshold='+str(args.bbb)
     if model=='none':
       pcall=pcall_base+' -m MH'
     else:
@@ -120,10 +121,11 @@ def main(argv):
     scaleterm=''
     if scale=='all':
       scaleterm=scale_all
-    if scale=='bbb':
+    if scale=='bbb' and args.bbb>0.001:
       scaleterm=scale_bbb
     if scale=='scen2':
-      scaleterm=scale_bbb+scale_no_floor+scale_eff_m+scale_eff_e+scale_eff_t+scale_eff_b+scale_jf_syst+scale_theory+scale_lumi
+      scaleterm=scale_no_floor+scale_eff_m+scale_eff_e+scale_eff_t+scale_eff_b+scale_jf_syst+scale_theory+scale_lumi
+      if args.bbb>0.001: scaleterm+=scale_bbb
 #    pcall='combineTool.py -M T2W -o ws.root --parallel 8 -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel --PO \'"map=^.*/ggH.?$:r_ggH[0,0,200]"\' --PO \'"map=^.*/bbH$:r_bbH[0,0,200]"\' '+scaleterm+' -i output/'+symdir+'* &> '+basedir+'/log_ws.txt'
 #    pcall_base='combineTool.py -M T2W -v 3 -o ws.root --parallel 8 '+scaleterm+' -i output/'+symdir+'*'
     pcall_base='combineTool.py -M T2W -o ws.root --parallel 8 '+scaleterm+' -i output/'+symdir+'*'  #MF
@@ -205,7 +207,8 @@ def main(argv):
   if 'mlfit' in args.mode:
 
     mllog=basedir+'log_mlfit.txt'
-    pcall2='combineTool.py -M MaxLikelihoodFit --parallel 8 --setPhysicsModelParameters r_ggH=0.0,r_bbH=0.0,lumi='+str(lumiscale)+' --freezeNuisances '+nfreeze+' --floatAllNuisances 1 --setPhysicsModelParameterRanges r_ggH=-0.000001,0.000001 --setPhysicsModelParameterRanges r_bbH=-0.000001,0.000001 -d cmb/ws.root --redefineSignalPOIs r_ggH --there -m '+str(smass)+' --boundlist '+rundir+'/input/mssm_boundaries-100.json --minimizerTolerance 0.1 --minimizerStrategy 0 --name ".res" '+' &>'+mllog
+#    pcall2='combineTool.py -M MaxLikelihoodFit --parallel 8 --setPhysicsModelParameters r_ggH=0.0,r_bbH=0.0,lumi='+str(lumiscale)+' --freezeNuisances '+nfreeze+' --floatAllNuisances 1 --setPhysicsModelParameterRanges r_ggH=-0.000001,0.000001 --setPhysicsModelParameterRanges r_bbH=-0.000001,0.000001 -d cmb/ws.root --redefineSignalPOIs r_ggH --there -m '+str(smass)+' --boundlist '+rundir+'/input/mssm_boundaries-100.json --minimizerTolerance 0.1 --minimizerStrategy 0 --name ".res" '+' &>'+mllog
+    pcall2='combineTool.py -M MaxLikelihoodFit --parallel 8 --setPhysicsModelParameters r_ggH=0.0,r_bbH=0.0,lumi='+str(lumiscale)+' --freezeNuisances '+nfreeze+' --floatAllNuisances 1 --setPhysicsModelParameterRanges r_ggH=-0.000001,0.000001 --setPhysicsModelParameterRanges r_bbH=-0.000001,0.000001 -d cmb/ws.root --redefineSignalPOIs r_ggH --there -m '+str(smass)+' --boundlist '+rundir+'/input/mssm_boundaries-100.json --minimizerTolerance 0.5 --minimizerStrategy 1 --name ".res" '+' &>'+mllog
     make_pcall(pcall2, 'Running ML fit')
     make_pcall('mv cmb/mlfit.res.root cmb/mlfit.root','Renaming mlfit output files',2)
 

@@ -2,7 +2,7 @@
 declare -A ds
 
 d='output/'
-tag='jul06_'
+tag='jul05_'
 tag2='jul05_'
 
 ds_nosys=( ${d}${tag}'lumi-35.9_nosyst/'    ${d}${tag2}'lumi-300.0_nosyst/'    ${d}${tag2}'lumi-3000.0_nosyst/' )
