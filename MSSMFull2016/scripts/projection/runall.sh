@@ -1,8 +1,7 @@
 #!/bin/bash
 
-lumis=( 36.9 300 3000 )
-#lumis=( 300 )
-odir="jul03"
+lumis=( 35.9 300 3000 )
+odir="jul05"
 
 #modes="all" #model-indep
 #extra=""

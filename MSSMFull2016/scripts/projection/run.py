@@ -13,7 +13,8 @@ symdir='latest/'
 basedir=rundir+'output/'+symdir
 logfile=basedir+'log.txt'
 
-baselumi=36.9
+baselumi=35.9
+#baselumi=36.9
 dryrun=False
 
 def main(argv):
@@ -37,7 +38,7 @@ def main(argv):
   args = parser.parse_args()
 
   lumiscale=round(args.lumi/baselumi,2)
-  cme='13' if (lumiscale>3) else '14'  #
+  cme='13' if (lumiscale>3) else '13'  #14 does not work yet
 
   syst=args.syst
   scale=args.scale
@@ -99,7 +100,7 @@ def main(argv):
   ############################################## WORKSPACE
   if 'ws' in args.mode:
     scale_bbb='--X-nuisance-function \'CMS_htt_.*bin_[0-9]+\' \'"expr::scaleBBB(\\"1/sqrt(@0)\\",lumi[1])"\''
-    scale_all='--X-nuisance-function \'CMS_+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\''  +  ' --X-nuisance-function \'lumi_+\' \'"expr::scaleLumi(\\"1/sqrt(@0)\\",lumi[1])"\'' + '--X-nuisance-function \'ff_.*_syst+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\'' + '--X-nuisance-function \'ff_.*_stat+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\'' + '--X-nuisance-function \'QCDscale_+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\''
+    scale_all='--X-nuisance-function \'CMS_+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\''  +  ' --X-nuisance-function \'lumi_+\' \'"expr::scaleLumi(\\"1/sqrt(@0)\\",lumi[1])"\'' + ' --X-nuisance-function \'ff_.*_syst+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\'' + ' --X-nuisance-function \'ff_.*_stat+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\'' + ' --X-nuisance-function \'QCDscale_+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\''
 
     scale_no_floor=' --X-nuisance-group-function \'no_floor\'   \'"expr::scaleNoFloor(\\"1/sqrt(@0)\\",lumi[1])"\''
     scale_eff_m   =' --X-nuisance-group-function \'eff_m\'      \'"expr::scaleEffM(\\"max(0.25,1/sqrt(@0))\\",lumi[1])"\''
@@ -118,8 +119,8 @@ def main(argv):
     if scale=='scen2':
       scaleterm=scale_bbb+scale_no_floor+scale_eff_m+scale_eff_e+scale_eff_t+scale_eff_b+scale_jf_syst+scale_theory+scale_lumi
 #    pcall='combineTool.py -M T2W -o ws.root --parallel 8 -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel --PO \'"map=^.*/ggH.?$:r_ggH[0,0,200]"\' --PO \'"map=^.*/bbH$:r_bbH[0,0,200]"\' '+scaleterm+' -i output/'+symdir+'* &> '+basedir+'/log_ws.txt'
-    pcall_base='combineTool.py -M T2W -v 3 -o ws.root --parallel 8 '+scaleterm+' -i output/'+symdir+'*'
-#    pcall_base='combineTool.py -M T2W -o ws.root --parallel 8 '+scaleterm+' -i output/'+symdir+'*'
+#    pcall_base='combineTool.py -M T2W -v 3 -o ws.root --parallel 8 '+scaleterm+' -i output/'+symdir+'*'
+    pcall_base='combineTool.py -M T2W -o ws.root --parallel 8 '+scaleterm+' -i output/'+symdir+'*'  #MF
 
     if model=='none':
       pcall=pcall_base+' -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel --PO \'"map=^.*/ggH.?$:r_ggH[0,0,200]"\' --PO \'"map=^.*/bbH$:r_bbH[0,0,200]"\''
@@ -198,7 +199,7 @@ def main(argv):
   if 'mlfit' in args.mode:
 
     mllog=basedir+'log_mlfit.txt'
-    pcall2='combineTool.py -M MaxLikelihoodFit --parallel 8 --setPhysicsModelParameters r_ggH=0.0,r_bbH=0.0,lumi='+str(lumiscale)+' --freezeNuisances '+nfreeze+' --floatAllNuisances 1 --setPhysicsModelParameterRanges r_ggH=-0.000001,0.000001 --setPhysicsModelParameterRanges r_bbH=-0.000001,0.000001 -d cmb/ws.root --redefineSignalPOIs r_ggH --there -m '+str(smass)+' --boundlist '+rundir+'/input/mssm_boundaries.json --minimizerTolerance 0.1 --minimizerStrategy 0 --name ".res" '+' &>'+mllog
+    pcall2='combineTool.py -M MaxLikelihoodFit --parallel 8 --setPhysicsModelParameters r_ggH=0.0,r_bbH=0.0,lumi='+str(lumiscale)+' --freezeNuisances '+nfreeze+' --floatAllNuisances 1 --setPhysicsModelParameterRanges r_ggH=-0.000001,0.000001 --setPhysicsModelParameterRanges r_bbH=-0.000001,0.000001 -d cmb/ws.root --redefineSignalPOIs r_ggH --there -m '+str(smass)+' --boundlist '+rundir+'/input/mssm_boundaries-100.json --minimizerTolerance 0.1 --minimizerStrategy 0 --name ".res" '+' &>'+mllog
     make_pcall(pcall2, 'Running ML fit')
     make_pcall('mv cmb/mlfit.res.root cmb/mlfit.root','Renaming mlfit output files',2)
 
