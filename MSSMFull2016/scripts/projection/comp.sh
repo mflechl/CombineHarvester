@@ -2,18 +2,19 @@
 declare -A ds
 
 d='output/'
-tag='jun27_'
+tag='jul06_'
+tag2='jul05_'
 
-ds_nosys=( ${d}${tag}'lumi-36.9_nosyst/'    ${d}${tag}'lumi-300.0_nosyst/'    ${d}${tag}'lumi-3000.0_nosyst/' )
-ds_nosca=( ${d}${tag}'lumi-36.9/'           ${d}${tag}'lumi-300.0/'           ${d}${tag}'lumi-3000.0/' )
-ds_scall=( ${d}${tag}'lumi-36.9_scale-all/' ${d}${tag}'lumi-300.0_scale-all/' ${d}${tag}'lumi-3000.0_scale-all/' )
-ds_scbbb=( ${d}${tag}'lumi-36.9_scale-bbb/' ${d}${tag}'lumi-300.0_scale-bbb/' ${d}${tag}'lumi-3000.0_scale-bbb/' )
-ds_scsc2=( ${d}${tag}'lumi-36.9_scale-scen2/' ${d}${tag}'lumi-300.0_scale-scen2/' ${d}${tag}'lumi-3000.0_scale-scen2/' )
+ds_nosys=( ${d}${tag}'lumi-35.9_nosyst/'    ${d}${tag2}'lumi-300.0_nosyst/'    ${d}${tag2}'lumi-3000.0_nosyst/' )
+ds_nosca=( ${d}${tag}'lumi-35.9/'           ${d}${tag2}'lumi-300.0/'           ${d}${tag2}'lumi-3000.0/' )
+ds_scall=( ${d}${tag}'lumi-35.9_scale-all/' ${d}${tag2}'lumi-300.0_scale-all/' ${d}${tag2}'lumi-3000.0_scale-all/' )
+ds_scbbb=( ${d}${tag}'lumi-35.9_scale-bbb/' ${d}${tag2}'lumi-300.0_scale-bbb/' ${d}${tag2}'lumi-3000.0_scale-bbb/' )
+ds_scsc2=( ${d}${tag}'lumi-35.9_scale-scen2/' ${d}${tag2}'lumi-300.0_scale-scen2/' ${d}${tag2}'lumi-3000.0_scale-scen2/' )
 o='output/limit_comp' 
 
 
 modes=( 'no_systematics' 'no_scaling'  'scale_all' 'scale_bbb' 'scale_scen2' )
-lumi=(  '36.9_fb^{-1}'   '300_fb^{-1}' '3000_fb^{-1}'          )
+lumi=(  '35.9_fb^{-1}'   '300_fb^{-1}' '3000_fb^{-1}'          )
 ds[no_systematics]=ds_nosys[@]
 ds[no_scaling]=ds_nosca[@]
 ds[scale_all]=ds_scall[@]
@@ -61,5 +62,5 @@ for l in ${lumi[@]}; do
 done
 
 
-#    python scripts/plotMSSMLimits.py --logy --logx --show exp0 ${ds_unsc[0]}${p}'_cmb.json:exp0:Title="36.9 fb^{-1}"' ${ds_unsc[1]}${p}'_cmb.json:exp0:Title="300/fb"' ${ds_unsc[2]}${p}'_cmb.json:exp0:Title="3000/fb"' --cms-sub="Preliminary" -o output/noscale_${p} --process=${p:0:2}'#phi' --title-right="13 TeV" --use-hig-17-020-style --auto-style --ratio-to ${ds_unsc[0]}${p}'_cmb.json:exp0' --title-left=''${p}', unscaled'
+#    python scripts/plotMSSMLimits.py --logy --logx --show exp0 ${ds_unsc[0]}${p}'_cmb.json:exp0:Title="35.9 fb^{-1}"' ${ds_unsc[1]}${p}'_cmb.json:exp0:Title="300/fb"' ${ds_unsc[2]}${p}'_cmb.json:exp0:Title="3000/fb"' --cms-sub="Preliminary" -o output/noscale_${p} --process=${p:0:2}'#phi' --title-right="13 TeV" --use-hig-17-020-style --auto-style --ratio-to ${ds_unsc[0]}${p}'_cmb.json:exp0' --title-left=''${p}', unscaled'
 

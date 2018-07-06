@@ -24,7 +24,7 @@ def main(argv):
   global symdir,basedir,logfile
 
   parser = argparse.ArgumentParser(description='Steer the projection')
-  parser.add_argument('mode', nargs='*',                       default=['all'], choices=['all','datacard','ws','limit','mlfit','np'],     help='Mode of operation')
+  parser.add_argument('mode', nargs='*',                       default=['all'], choices=['all','allnp','datacard','ws','limit','mlfit','np'],     help='Mode of operation')
   parser.add_argument('--lumi',     dest='lumi',   type=float, default=baselumi,                                      help='Luminosity in fb-1')
   parser.add_argument('--nosyst',   dest='syst', nargs='?',    default=True, const=False,                             help='Flag to disable ystematics')
   parser.add_argument('--scale',    dest='scale',              default='none',  choices=['all','bbb','scen2','none'], help='Scaling of uncertainties. Options: all, bbb, scen2, none')
@@ -62,13 +62,19 @@ def main(argv):
   dryrun=args.dryrun
   lxb=args.lxb
 
-  if 'all' in args.mode:
+  if 'allnp' in args.mode:
     args.mode.remove('all')
     args.mode.append('datacard')
     args.mode.append('ws')
     args.mode.append('limit')
     args.mode.append('mlfit')
     args.mode.append('np')
+
+  if 'all' in args.mode:
+    args.mode.remove('all')
+    args.mode.append('datacard')
+    args.mode.append('ws')
+    args.mode.append('limit')
 
   if customdir or 'datacard' in args.mode:
     create_output_dir()
@@ -142,7 +148,7 @@ def main(argv):
       proc=[ 'ggH' , 'bbH' ]
       make_pcall('echo Processes: '+str(proc)+' > '+basedir+'/log_lim.txt','',2)
       for p in proc:
-        pcall1='combineTool.py -m "90,100,110,120,130,140,160,180,200,250,350,400,450,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2300,2600,2900,3200" -M Asymptotic -t -1 --parallel 7 --rAbsAcc 0 --rRelAcc 0.0005 --boundlist input/mssm_boundaries-100.json --setPhysicsModelParameters r_ggH=0,r_bbH=0,lumi='+str(lumiscale)+' --freezeNuisances '+nfreeze+' --floatAllNuisances 1 --redefineSignalPOIs r_'+p+' -d output/'+symdir+'cmb/ws.root --there -n ".'+p+'" &>> '+basedir+'/log_lim.txt'
+        pcall1='combineTool.py -m "90,100,110,120,130,140,160,180,200,250,350,400,450,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2300,2600,2900,3200" -M Asymptotic -t -1 --parallel 8 --rAbsAcc 0 --rRelAcc 0.0005 --boundlist input/mssm_boundaries-100.json --setPhysicsModelParameters r_ggH=0,r_bbH=0,lumi='+str(lumiscale)+' --freezeNuisances '+nfreeze+' --floatAllNuisances 1 --redefineSignalPOIs r_'+p+' -d output/'+symdir+'cmb/ws.root --there -n ".'+p+'" &>> '+basedir+'/log_lim.txt'
         pcall2='combineTool.py -M CollectLimits output/'+symdir+'cmb/higgsCombine.'+p+'*.root --use-dirs -o "output/'+symdir+p+'.json" &>> '+basedir+'/log_lim.txt'
         pcall3='python scripts/plotMSSMLimits.py --logy --logx --show exp output/'+symdir+p+'_cmb.json --cms-sub="Preliminary" -o output/'+symdir+p+'_cmb --process=\''+p[0:2]+'#phi\' --title-right="'+str(args.lumi)+' fb^{-1} ('+cme+' TeV)" --use-hig-17-020-style >> '+basedir+'/log_lim.txt'
         make_pcall(pcall1,'Producing  limit for '+p,0)
