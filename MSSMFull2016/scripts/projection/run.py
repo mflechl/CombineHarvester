@@ -38,7 +38,7 @@ def main(argv):
   args = parser.parse_args()
 
   lumiscale=round(args.lumi/baselumi,2)
-  cme='13' if (lumiscale>3) else '14'  #
+  cme='13' if (lumiscale>3) else '13'  #14 does not work yet
 
   syst=args.syst
   scale=args.scale
