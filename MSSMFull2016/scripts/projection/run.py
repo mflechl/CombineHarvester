@@ -52,6 +52,7 @@ def main(argv):
   mdir=args.outdir+'_lumi-'+str(args.lumi)
   if not syst: mdir+='_nosyst'
   if not scale=='none': mdir+='_scale-'+scale
+  if args.bbb<0.0001: mdir+='_nobbb'
   physdir=rundir+'output/'+mdir+'/'
 
   symdir=args.symdir
@@ -64,7 +65,7 @@ def main(argv):
   lxb=args.lxb
 
   if 'allnp' in args.mode:
-    args.mode.remove('all')
+    args.mode.remove('allnp')
     args.mode.append('datacard')
     args.mode.append('ws')
     args.mode.append('limit')
@@ -223,7 +224,7 @@ def main(argv):
     pcall='python '+CMSSW_BASE+'/src/HiggsAnalysis/CombinedLimit/test/diffNuisances.py cmb/mlfit.root -a --stol 0.99 --stol 0.99 --vtol 99. --vtol2 99. -f text --poi r_ggH --histogram nuisance_tests.root &> '+basedir+'/log_np.txt'
     make_pcall(pcall,'Make NP texts... in dir: '+basedir)
 
-    exvar=' --exclude `cat ../combined.txt.cmb | awk {\'print $1\'} | grep _bin_ | head -c -1 | tr \'\\n\' \',\' `'
+    exvar=' --exclude `cat ../combined.txt.cmb | awk {\'print $1\'} | grep _bin_ | head -c -1 | tr \'\\n\' \',\' `' if (args.bbb>0.001) else ''
     idir=basedir+'/cmb/impacts'
     make_dir(idir)
     os.chdir(idir)
