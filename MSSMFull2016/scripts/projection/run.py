@@ -108,7 +108,7 @@ def main(argv):
   ############################################## WORKSPACE
   if 'ws' in args.mode:
     scale_bbb=' --X-nuisance-function \'CMS_htt_.*bin_[0-9]+\' \'"expr::scaleBBB(\\"1/sqrt(@0)\\",lumi[1])"\''
-    scale_all=' --X-nuisance-function \'CMS_+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\''  +  ' --X-nuisance-function \'lumi_+\' \'"expr::scaleLumi(\\"1/sqrt(@0)\\",lumi[1])"\'' + ' --X-nuisance-function \'ff_.*_syst+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\'' + ' --X-nuisance-function \'ff_.*_stat+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\'' + ' --X-nuisance-function \'QCDscale_+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\''
+    scale_all=' --X-nuisance-function \'CMS_+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\''  +  ' --X-nuisance-function \'lumi_+\' \'"expr::scaleLumi(\\"1/sqrt(@0)\\",lumi[1])"\'' + ' --X-nuisance-function \'.*ff_.*_syst+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\'' + ' --X-nuisance-function \'.*ff_.*_stat+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\'' + ' --X-nuisance-function \'QCDScale_+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\''
 
     scale_no_floor=' --X-nuisance-group-function \'no_floor\'   \'"expr::scaleNoFloor(\\"1/sqrt(@0)\\",lumi[1])"\''
     scale_eff_m   =' --X-nuisance-group-function \'eff_m\'      \'"expr::scaleEffM(\\"max(0.25,1/sqrt(@0))\\",lumi[1])"\''
@@ -208,8 +208,8 @@ def main(argv):
   if 'mlfit' in args.mode:
 
     mllog=basedir+'log_mlfit.txt'
-#    pcall2='combineTool.py -M MaxLikelihoodFit --parallel 8 --setPhysicsModelParameters r_ggH=0.0,r_bbH=0.0,lumi='+str(lumiscale)+' --freezeNuisances '+nfreeze+' --floatAllNuisances 1 --setPhysicsModelParameterRanges r_ggH=-0.000001,0.000001 --setPhysicsModelParameterRanges r_bbH=-0.000001,0.000001 -d cmb/ws.root --redefineSignalPOIs r_ggH --there -m '+str(smass)+' --boundlist '+rundir+'/input/mssm_boundaries-100.json --minimizerTolerance 0.1 --minimizerStrategy 0 --name ".res" '+' &>'+mllog
-    pcall2='combineTool.py -M MaxLikelihoodFit --parallel 8 --setPhysicsModelParameters r_ggH=0.0,r_bbH=0.0,lumi='+str(lumiscale)+' --freezeNuisances '+nfreeze+' --floatAllNuisances 1 --setPhysicsModelParameterRanges r_ggH=-0.000001,0.000001 --setPhysicsModelParameterRanges r_bbH=-0.000001,0.000001 -d cmb/ws.root --redefineSignalPOIs r_ggH --there -m '+str(smass)+' --boundlist '+rundir+'/input/mssm_boundaries-100.json --minimizerTolerance 0.5 --minimizerStrategy 1 --name ".res" '+' &>'+mllog
+#    pcall2='combineTool.py -M MaxLikelihoodFit -t -1 --parallel 8 --robustFit 1 --setPhysicsModelParameters r_ggH=0.0,r_bbH=0.0,lumi='+str(lumiscale)+' --freezeNuisances '+nfreeze+' --floatAllNuisances 1 --setPhysicsModelParameterRanges r_ggH=-0.000001,0.000001 --setPhysicsModelParameterRanges r_bbH=-0.000001,0.000001 -d cmb/ws.root --redefineSignalPOIs r_ggH --there -m '+str(smass)+' --boundlist '+rundir+'/input/mssm_boundaries-100.json --minimizerTolerance 0.1 --minimizerStrategy 0 --name ".res" '+' &>'+mllog
+    pcall2='combineTool.py -M MaxLikelihoodFit -t -1 --parallel 8 --robustFit 1 --setPhysicsModelParameters r_ggH=0.0,r_bbH=0.0,lumi='+str(lumiscale)+' --freezeNuisances '+nfreeze+' --floatAllNuisances 1 --setPhysicsModelParameterRanges r_ggH=-0.000001,0.000001 --setPhysicsModelParameterRanges r_bbH=-0.000001,0.000001 -d cmb/ws.root --redefineSignalPOIs r_ggH --there -m '+str(smass)+' --boundlist '+rundir+'/input/mssm_boundaries-100.json --minimizerTolerance 0.5 --minimizerStrategy 1 --name ".res" '+' &>'+mllog
     make_pcall(pcall2, 'Running ML fit')
     make_pcall('mv cmb/mlfit.res.root cmb/mlfit.root','Renaming mlfit output files',2)
 
@@ -230,8 +230,14 @@ def main(argv):
     os.chdir(idir)
     make_print( '### Make NP plots... in dir: '+idir)
     pcall4=[ 
-      'combineTool.py -t -1 -M Impacts -d ../ws.root -m '+str(smass)+' --setPhysicsModelParameters r_bbH=0,r_ggH=0,lumi='+str(lumiscale)+' --setPhysicsModelParameterRanges r_ggH=-1.0,1.0 --doInitialFit --robustFit 1 --minimizerAlgoForMinos Minuit2,Migrad --redefineSignalPOIs r_ggH --freezeNuisances '+nfreeze+' --floatAllNuisances 1 '+exvar+' &>log1.txt',
-      'combineTool.py -t -1 -M Impacts -d ../ws.root -m '+str(smass)+' --setPhysicsModelParameters r_bbH=0,r_ggH=0,lumi='+str(lumiscale)+' --setPhysicsModelParameterRanges r_ggH=-1.0,1.0 --robustFit 1 --doFits --minimizerAlgoForMinos Minuit2,Migrad  --redefineSignalPOIs r_ggH --freezeNuisances '+nfreeze+ ' --floatAllNuisances 1 --allPars --parallel 8'+exvar+' &>log2.txt',
+#      'combineTool.py -t -1 -M Impacts -d ../ws.root -m '+str(smass)+' --setPhysicsModelParameters r_bbH=0,r_ggH=0,lumi='+str(lumiscale)+' --setPhysicsModelParameterRanges r_ggH=-1.0,1.0 --doInitialFit --robustFit 1 --minimizerAlgoForMinos Minuit2,Migrad --redefineSignalPOIs r_ggH --freezeNuisances '+nfreeze+' --floatAllNuisances 1 '+exvar+' &>log1.txt',
+#      'combineTool.py -t -1 -M Impacts -d ../ws.root -m '+str(smass)+' --setPhysicsModelParameters r_bbH=0,r_ggH=0,lumi='+str(lumiscale)+' --setPhysicsModelParameterRanges r_ggH=-1.0,1.0 --doInitialFit --robustFit 1 --minimizerAlgoForMinos Minuit2,Migrad --redefineSignalPOIs r_ggH --freezeNuisances '+nfreeze+' --floatAllNuisances 1 '+exvar+' --saveFitResult &>log1.txt',
+      'combineTool.py -t -1 -M Impacts -d ../ws.root -m '+str(smass)+' --setPhysicsModelParameters r_bbH=0,r_ggH=0,lumi='+str(lumiscale)+' --setPhysicsModelParameterRanges r_ggH=-0.05,0.05 --doInitialFit --robustFit 1 --minimizerAlgoForMinos Minuit2,Migrad --redefineSignalPOIs r_ggH --freezeNuisances '+nfreeze+' --floatAllNuisances 1 '+exvar+' --saveFitResult &>log1.txt',
+
+#      'combineTool.py -t -1 -M Impacts -d ../ws.root -m '+str(smass)+' --setPhysicsModelParameters r_bbH=0,r_ggH=0,lumi='+str(lumiscale)+' --setPhysicsModelParameterRanges r_ggH=-1.0,1.0 --robustFit 1 --doFits --minimizerAlgoForMinos Minuit2,Migrad  --redefineSignalPOIs r_ggH --freezeNuisances '+nfreeze+ ' --floatAllNuisances 1 --allPars --parallel 8'+exvar+' &>log2.txt',
+#      'combineTool.py -t -1 -M Impacts -d ../ws.root -m '+str(smass)+' --setPhysicsModelParameters r_bbH=0,r_ggH=0,lumi='+str(lumiscale)+' --setPhysicsModelParameterRanges r_ggH=-1.0,1.0 --robustFit 1 --doFits --minimizerAlgoForMinos Minuit2,Migrad  --redefineSignalPOIs r_ggH --freezeNuisances '+nfreeze+ ' --floatAllNuisances 1 --allPars --parallel 8'+exvar+' --saveFitResult &>log2.txt',
+      'combineTool.py -t -1 -M Impacts -d ../ws.root -m '+str(smass)+' --setPhysicsModelParameters r_bbH=0,r_ggH=0,lumi='+str(lumiscale)+' --setPhysicsModelParameterRanges r_ggH=-0.05,0.05 --robustFit 1 --doFits --minimizerAlgoForMinos Minuit2,Migrad  --redefineSignalPOIs r_ggH --freezeNuisances '+nfreeze+ ' --floatAllNuisances 1 --allPars --parallel 8'+exvar+' --saveFitResult &>log2.txt',
+
       'combineTool.py -M Impacts -d ../ws.root --allPars --redefineSignalPOIs r_ggH --setPhysicsModelParameters r_bbH=0,r_ggH=0,lumi='+str(lumiscale)+' --floatAllNuisances 1 --exclude r_bbH,lumi -m '+str(smass)+' -o impacts.json'+exvar+' &>log3.txt',
       'plotImpacts.py -i impacts.json -o impacts --transparent &>log4.txt',
       'cp -p impacts.pdf ../',

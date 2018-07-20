@@ -6,23 +6,24 @@ tag='jul05_'
 tag2='jul05_'
 tag3='jul07_'
 
-ds_nosys=( ${d}${tag}'lumi-35.9_nosyst/'      ${d}${tag2}'lumi-300.0_nosyst/'    ${d}${tag2}'lumi-3000.0_nosyst/' )
-ds_nosca=( ${d}${tag}'lumi-35.9/'             ${d}${tag2}'lumi-300.0/'           ${d}${tag2}'lumi-3000.0/' )
-ds_scall=( ${d}${tag}'lumi-35.9_scale-all/'   ${d}${tag2}'lumi-300.0_scale-all/' ${d}${tag2}'lumi-3000.0_scale-all/' )
-ds_scbbb=( ${d}${tag}'lumi-35.9_scale-bbb/'   ${d}${tag2}'lumi-300.0_scale-bbb/' ${d}${tag2}'lumi-3000.0_scale-bbb/' )
-ds_scsc2=( ${d}${tag}'lumi-35.9_scale-scen2/' ${d}${tag2}'lumi-300.0_scale-scen2/' ${d}${tag2}'lumi-3000.0_scale-scen2/' )
+ds_nosys=( ${d}${tag}'lumi-35.9_nosyst/'       ${d}${tag2}'lumi-300.0_nosyst/'    ${d}${tag2}'lumi-3000.0_nosyst/' )
+ds_nosca=( ${d}${tag}'lumi-35.9/'              ${d}${tag2}'lumi-300.0/'           ${d}${tag2}'lumi-3000.0/' )
+ds_scall=( ${d}${tag}'lumi-35.9_scale-all/'    ${d}${tag2}'lumi-300.0_scale-all/' ${d}${tag2}'lumi-3000.0_scale-all/' )
+ds_scbbb=( ${d}${tag}'lumi-35.9_scale-bbb/'    ${d}${tag2}'lumi-300.0_scale-bbb/' ${d}${tag2}'lumi-3000.0_scale-bbb/' )
+ds_scsc2=( ${d}${tag3}'lumi-35.9_scale-scen2/' ${d}${tag3}'lumi-300.0_scale-scen2/' ${d}${tag3}'lumi-3000.0_scale-scen2/' )
 ds_scnob=( ${d}${tag3}'lumi-35.9_scale-scen2_nobbb/' ${d}${tag3}'lumi-300.0_scale-scen2_nobbb/' ${d}${tag3}'lumi-3000.0_scale-scen2_nobbb/' )
 o='output/limit_comp' 
 
 
-modes=( 'no_systematics' 'no_scaling'  'scale_all' 'scale_bbb' 'scale_scen2' 'scale_scen2-nobbb' )
+#modes=( 'no_systematics' 'no_scaling'  'scale_all' 'scale_bbb' 'scale_scen2' 'scale_scen2-nobbb' )
+modes=( 'no_systematics' 'no_scaling'  'scale_all' 'scale_bbb' 'scen2' 'scen2_nobbb' )
 lumi=(  '35.9_fb^{-1}'   '300_fb^{-1}' '3000_fb^{-1}'          )
 ds[no_systematics]=ds_nosys[@]
 ds[no_scaling]=ds_nosca[@]
 ds[scale_all]=ds_scall[@]
 ds[scale_bbb]=ds_scbbb[@]
-ds[scale_scen2]=ds_scsc2[@]
-ds[scale_scen2-nobbb]=ds_scnob[@]
+ds[scen2]=ds_scsc2[@]
+ds[scen2_nobbb]=ds_scnob[@]
 
 for m in ${modes[@]}; do 
     i=0
@@ -44,7 +45,7 @@ done
 for l in ${lumi[@]}; do 
     lumititle=${l/"_fb^{-1}"/""}
     i=0
-    echo lumititle $lumititle
+#    echo lumititle $lumititle
     for m in ${modes[@]}; do for d in ${!ds[$m]}; do 
 	    if [[ "$d" =~ "${lumititle}." ]] || [[ "$d" =~ "${lumititle}_" ]] || [[ "$d" =~ "${lumititle}/" ]]; then ds_[i]=$d; let i=$i+1; fi; done; 
     done

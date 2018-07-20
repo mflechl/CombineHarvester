@@ -187,7 +187,8 @@ axis = None
 
 defcols = [
     ROOT.kGreen+3, ROOT.kRed, ROOT.kBlue, ROOT.kBlack, ROOT.kYellow+2,
-    ROOT.kOrange+10, ROOT.kCyan+3, ROOT.kMagenta+2, ROOT.kViolet-5, ROOT.kGray
+    ROOT.kMagenta+2, ROOT.kCyan+3, ROOT.kViolet-5, ROOT.kGray
+#    ROOT.kOrange+10, ROOT.kCyan+3, ROOT.kMagenta+2, ROOT.kViolet-5, ROOT.kGray
     ]
 
 deflines = [1, 2, 3]
