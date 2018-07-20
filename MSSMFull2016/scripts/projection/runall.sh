@@ -1,11 +1,12 @@
 #!/bin/bash
 
 lumis=( 35.9 300 3000 )
-odir="jul09"
+odir="jul20"
 
 modes="datacard ws limit"  #model-dep step 1
 #modes="limit"              #model-dep step 2
 extra="--model mhmod --symdir latest/ --lxb"
+#extra="--model hmssm --symdir latest/ --lxb"
 
 for l in "${lumis[@]}"; do
     echo "###############################"

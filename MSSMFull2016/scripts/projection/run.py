@@ -53,6 +53,7 @@ def main(argv):
   if not syst: mdir+='_nosyst'
   if not scale=='none': mdir+='_scale-'+scale
   if args.bbb<0.0001: mdir+='_nobbb'
+  if not model=='none': mdir+='_'+model
   physdir=rundir+'output/'+mdir+'/'
 
   symdir=args.symdir
