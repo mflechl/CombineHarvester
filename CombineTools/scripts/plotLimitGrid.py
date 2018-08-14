@@ -6,6 +6,29 @@ import argparse
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 
+def manip(hist,typ,mod,lumi):
+  hist.SaveAs('hist_'+typ+'_before.C')
+  for x in xrange(1, hist.GetNbinsX()):
+      for y in xrange(1, hist.GetNbinsY()):
+          if hist.GetBinContent(x,y)<1e-12:
+#              print 'XX'+typ+'    '+str(hist.GetBinLowEdge(x))+' / '+str(hist.GetBinLowy)+' = '+str(hist.GetBinContent(x,y))
+              babove=hist.GetBinContent(x,y-1)
+              bbelow=hist.GetBinContent(x,y+1)
+              bleft=hist.GetBinContent(x-1,y)
+              bright=hist.GetBinContent(x+1,y)
+              newval=1e-12
+              if bbelow > 1e-12 and babove > 1e-12: newval= (bbelow+babove)/2
+              elif bleft > 1e-12 and bright > 1e-12: newval= (bleft+bright)/2
+              elif babove > 1e-12: newval=babove
+              elif bbelow > 1e-12: newval=bbelow #
+              elif bleft > 1e-12: newval=bleft #
+              elif bright > 1e-12: newval=bright #
+              if mod=='hmssm' and ( lumi=='3000.0' or lumi=='300.0' ):
+                if x==1: newval=0.01
+              print 'XX'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(hist.GetBinContent(x,y))+' ==> '+str(newval)
+              hist.SetBinContent(x,y,newval)
+  hist.SaveAs('hist_'+typ+'_after.C')
+
 parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument(
@@ -90,6 +113,14 @@ file = ROOT.TFile(args.input)
 types = args.contours.split(',')
 CL = 1 - args.CL
 
+lumi='35.9'
+if '300.0' in args.output: lumi='300.0'
+if '3000.0' in args.output: lumi='3000.0'
+
+mod=''
+if 'hmssm' in args.output: mod='hmssm'
+
+
 # Object storage
 graphs = {c: file.Get(c) for c in types}
 hists = {}
@@ -135,6 +166,7 @@ for c in types:
     print 'Filling histo for %s' % c
     hists[c] = h_proto.Clone(c)
     plot.fillTH2(hists[c], graphs[c])
+    manip(hists[c],c,mod,lumi)
     contours[c] = plot.contourFromTH2(hists[c], CL, 5, frameValue=1)
     if debug is not None:
         debug.WriteTObject(hists[c], 'hist_%s' % c)
@@ -146,7 +178,10 @@ if h_mh is not None:
   h_mh_inverted = h_mh.Clone("mhInverted")
   for i in range(1,h_mh.GetNbinsX()+1):
      for j in range(1, h_mh.GetNbinsY()+1):
-         h_mh_inverted.SetBinContent(i,j,1-(1./h_mh.GetBinContent(i,j)))
+         mh_=h_mh.GetBinContent(i,j)
+         mh_inv=1./mh_ if mh_>0.1 else 0.001
+#         h_mh_inverted.SetBinContent(i,j,1-(1./h_mh.GetBinContent(i,j)))
+         h_mh_inverted.SetBinContent(i,j,1-mh_inv)
   mh122_contours = plot.contourFromTH2(h_mh_inverted, (1-1./122), 5, frameValue=1)
   mh128_contours = plot.contourFromTH2(h_mh, 128, 5, frameValue=1)
 else : 

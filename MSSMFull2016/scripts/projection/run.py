@@ -107,6 +107,13 @@ def main(argv):
   #https://cms-hcomb.gitbooks.io/combine/content/part3/nonstandard.html#scaling-constraints
   #https://twiki.cern.ch/twiki/bin/viewauth/CMS/YR2018Systematics
   ############################################## WORKSPACE
+  if model=='mhmod': mf='mhmodp_mu200'
+  if model=='hmssm': mf='hMSSM'
+  if model=='lightstau': mf='lightstau1'
+  if model=='lightstop': mf='lightstopmod'
+  if model=='lowtb': mf='low-tb-high'
+  if model=='tauphobic': mf='tauphobic'
+  
   if 'ws' in args.mode:
     scale_bbb=' --X-nuisance-function \'CMS_htt_.*bin_[0-9]+\' \'"expr::scaleBBB(\\"1/sqrt(@0)\\",lumi[1])"\''
     scale_all=' --X-nuisance-function \'CMS_+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\''  +  ' --X-nuisance-function \'lumi_+\' \'"expr::scaleLumi(\\"1/sqrt(@0)\\",lumi[1])"\'' + ' --X-nuisance-function \'.*ff_.*_syst+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\'' + ' --X-nuisance-function \'.*ff_.*_stat+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\'' + ' --X-nuisance-function \'QCDScale_+\' \'"expr::scaleAll(\\"1/sqrt(@0)\\",lumi[1])"\''
@@ -135,13 +142,6 @@ def main(argv):
     if model=='none':
       pcall=pcall_base+' -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel --PO \'"map=^.*/ggH.?$:r_ggH[0,0,200]"\' --PO \'"map=^.*/bbH$:r_bbH[0,0,200]"\''
     else:
-      if model=='mhmod': mf='mhmodp_mu200'
-      if model=='hmssm': mf='hMSSM'
-      if model=='lightstau': mf='lightstau1'
-      if model=='lightstop': mf='lightstopmod'
-      if model=='lowtb': mf='low-tb-high'
-      if model=='tauphobic': mf='tauphobic'
-
       pcall=pcall_base+' -P CombineHarvester.CombinePdfs.MSSM:MSSM --PO filePrefix=$PWD/shapes/Models/ --PO modelFiles='+cme+'TeV,'+mf+'_'+cme+'TeV.root,1 --PO MSSM-NLO-Workspace=$PWD/shapes/Models/higgs_pt_v3_mssm_mode.root'
 
     pcall+=' &> '+basedir+'/log_ws.txt'
@@ -167,18 +167,28 @@ def main(argv):
       os.chdir(basedir)
       dp='../../'
       #TODO: other models
+      js=dp+'./scripts/mssm_asymptotic_grid.json'
+      modelfile=mf+'_'+cme+'TeV.root'
+      scenlabel=''
+      yrange=''
+
       if model=='mhmod':
-        js=dp+'./scripts/mssm_asymptotic_grid_mhmodp.json'
+#        js=dp+'./scripts/mssm_asymptotic_grid_mhmodp.json'
         scenlabel='m_{h}^{mod+} scenario'
-        modelfile='mhmodp_mu200_'+cme+'TeV.root'
+#        modelfile='mhmodp_mu200_'+cme+'TeV.root'
       if model=='hmssm':
         js=dp+'./scripts/mssm_asymptotic_grid_hMSSM.json'
         scenlabel='hMSSM scenario'
-        modelfile='hMSSM_'+cme+'TeV.root'
+#        modelfile='hMSSM_'+cme+'TeV.root'
       if model=='tauphobic':
+#        js=dp+'./scripts/mssm_asymptotic_grid_tauphobic_'+str(args.lumi)+'.json'
         js=dp+'./scripts/mssm_asymptotic_grid_tauphobic.json'
         scenlabel='tau-phobic scenario'
-        modelfile='hMSSM_'+cme+'TeV.root'
+        yrange='--y-range 1,50 '
+      if model=='lightstop':
+        scenlabel='light-stop scenario'
+      if model=='lowtb':
+        scenlabel='low tan #beta scenario'
       it=0
       ret=''
       while True:
@@ -201,12 +211,15 @@ def main(argv):
       if 'New jobs were created' in ret: #jobs were just submitted, only do this on final run
         print 'New jobs were created... rerun limit step once they are done to produce plots.'
       else:
-        pcall='python ../../../CombineTools/scripts/plotLimitGrid.py asymptotic_grid.root --scenario-label="'+scenlabel+'" --output="mssm_'+mdir+'" --title-right="'+str(args.lumi)+' fb^{-1} ('+cme+' TeV)" --cms-sub="Preliminary" --contours="exp-2,exp-1,exp0,exp+1,exp+2,obs" --x-range 90,2000 --model_file='+rundir+'shapes/Models/'+modelfile+' | grep -v "has.*points\|Two of these three" '
+        pcall='python ../../../CombineTools/scripts/plotLimitGrid.py asymptotic_grid.root --scenario-label="'+scenlabel+'" --output="mssm_'+mdir+'" --title-right="'+str(args.lumi)+' fb^{-1} ('+cme+' TeV)" --cms-sub="Preliminary" --contours="exp-2,exp-1,exp0,exp+1,exp+2,obs" --x-range 90,2000 '+yrange+'--model_file='+rundir+'shapes/Models/'+modelfile+' | grep -v "has.*points\|Two of these three" &> '+basedir+'/log_plotlim.txt'
 #for i in jun28*; do cp -p $i/mssm_mhmod_cmb.png mssm_mhmod_$i.png; cp -p $i/asymptotic_grid.root asymptotic_grid_$i.root; done
 
         import socket
         if 'lxplus' in socket.gethostname():
+#          pcall2='grep -v ",nan)" hist_exp+2_after.C | sed s\'#exp+#exp#g\' | sed s\'#Draw("")#Draw("colz")#g\' > hist_exp+1_after2.C'
+          pcall2='for i in hist*C; do echo $i; grep -v ",nan)" $i | sed s\'#exp+#exp#g\' | sed s\'#exp-#exp#g\' | sed s\'#Draw("")#Draw("colz")#g\' > c_$i; done'
           make_pcall(pcall,'Producing limit plots for '+model,0)
+          make_pcall(pcall2,'Fixing macros',2)
           make_pcall('cp -p asymptotic_grid.root asymptotic_grid_'+mdir+'.root','Copying asymptotic grid output files',2) #do not mv so that rerunning still works
         else: #for some reason, does not run on heplx
           make_print( pcall )
