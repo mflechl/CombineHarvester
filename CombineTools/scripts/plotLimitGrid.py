@@ -2,18 +2,86 @@
 import CombineHarvester.CombineTools.plotting as plot
 import ROOT
 import argparse
+from math import isnan
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 
 def manip(hist,typ,mod,lumi):
   hist.SaveAs('hist_'+typ+'_before.C')
-  for x in xrange(1, hist.GetNbinsX()):
-      for y in xrange(1, hist.GetNbinsY()):
-          if hist.GetBinContent(x,y)<1e-12:
+  for x in xrange(1, hist.GetNbinsX()+1):
+      for y in xrange(hist.GetNbinsY(), 0, -1):
+#      for y in xrange(1, hist.GetNbinsY()+1):
+
+          val=hist.GetBinContent(x,y)
+          print 'AA '+typ+'   '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+'   '+str(x)+' / '+str(y)
+
+
+          if mod=='tauphobic' and lumi=='3000.0' and scen=='scen2':
+            if ( (  typ=='exp0' and
+                    ( x==78 and (y==16 or y==17) ) or
+                    ( x==79 and (y==17 or y==18) ) or
+                    ( x==80 and  y==18           ) or
+                    ( x==81 and  y==18           ) 
+                    ) or
+                 (  typ=='exp+2' and
+                    ( x==66 and (y>=14 and y<=20) ) or
+                    ( x==67 and (y>=14 and y<=20) ) or
+                    ( x==68 and (y>=15 and y<=20) ) or
+                    ( x==69 and (y>=15 and y<=20) ) or
+                    ( x==70 and (y>=16 and y<=20) ) or
+                    ( x==71 and (y>=17 and y<=20) ) or
+                    ( x==72 and (y>=17 and y<=20) ) or
+                    ( x==73 and (y>=18 and y<=20) ) or
+                    ( x==74 and  y==19           ) 
+                    )
+                 ):
+              newval=( 49*hist.GetBinContent(x,y+1) + hist.GetBinContent(x,y-1) )/50.0
+              hist.SetBinContent(x,y,newval)
+              print 'ZZ'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+' ==> '+str(newval)
+              continue
+
+          if mod=='tauphobic' and lumi=='300.0' and scen=='scen2':
+            if (  typ=='exp0' and
+                  ( x==61 and (y>=15 and y<=19) ) or
+                  ( x==62 and (y>=15 and y<=19) ) or
+                  ( x==63 and (y>=16 and y<=20) ) or
+                  ( x==64 and (y>=17 and y<=20) ) or
+                  ( x==65 and (y>=17 and y<=21) ) or #18
+                  ( x==66 and (y>=18 and y<=21) ) or
+                  ( x==67 and (y>=18 and y<=22) ) or #19
+                  ( x==68 and (y>=19 and y<=22) ) or
+                  ( x==69 and (y>=20 and y<=22) ) or
+                  ( x==70 and (y>=21 and y<=22) ) or
+                  ( x==71 and (y>=21 and y<=22) ) or #22
+                  ( x==72 and (y>=22 and y<=22) ) or
+                  ( x==73 and (y>=22 and y<=22) ) or
+                  ( x==74 and (y>=23 and y<=23) )
+                  ):
+              newval=0.04 #( 99*hist.GetBinContent(x,y+1) + hist.GetBinContent(x,y-1) )/100.0
+              hist.SetBinContent(x,y,newval)
+              print 'ZZ'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+' ==> '+str(newval)
+              continue
+            if (  typ=='exp0' and
+                  ( x==66 and (y>=16 and y<=17) ) or
+                  ( x==67 and (y>=16 and y<=17) ) or #19
+                  ( x==68 and (y>=17 and y<=18) ) or
+                  ( x==69 and (y>=18 and y<=19) ) or
+                  ( x==70 and (y>=19 and y<=20) )
+                  ):
+              newval=0.06 #( 99*hist.GetBinContent(x,y+1) + hist.GetBinContent(x,y-1) )/100.0
+              hist.SetBinContent(x,y,newval)
+              print 'ZZ'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+' ==> '+str(newval)
+              continue
+
+          if mod=='tauphobic' and ( lumi=='3000.0' or lumi=='300.0' ) and (x==0 or x==1 or x==2):
+            newval=0.01
+            hist.SetBinContent(x,y,newval)
+            print 'YY'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+' ==> '+str(newval)
+          elif isnan(val) or val<1e-12:
 #              print 'XX'+typ+'    '+str(hist.GetBinLowEdge(x))+' / '+str(hist.GetBinLowy)+' = '+str(hist.GetBinContent(x,y))
-              babove=hist.GetBinContent(x,y-1)
-              bbelow=hist.GetBinContent(x,y+1)
+              babove=hist.GetBinContent(x,y+1)
+              bbelow=hist.GetBinContent(x,y-1)
               bleft=hist.GetBinContent(x-1,y)
               bright=hist.GetBinContent(x+1,y)
               newval=1e-12
@@ -23,9 +91,9 @@ def manip(hist,typ,mod,lumi):
               elif bbelow > 1e-12: newval=bbelow #
               elif bleft > 1e-12: newval=bleft #
               elif bright > 1e-12: newval=bright #
-              if mod=='hmssm' and ( lumi=='3000.0' or lumi=='300.0' ):
-                if x==1: newval=0.01
-              print 'XX'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(hist.GetBinContent(x,y))+' ==> '+str(newval)
+#              if mod=='hmssm' and ( lumi=='3000.0' or lumi=='300.0' ):
+#                if x==1: newval=0.01
+              print 'XX'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+' ==> '+str(newval)
               hist.SetBinContent(x,y,newval)
   hist.SaveAs('hist_'+typ+'_after.C')
 
@@ -119,6 +187,11 @@ if '3000.0' in args.output: lumi='3000.0'
 
 mod=''
 if 'hmssm' in args.output: mod='hmssm'
+elif 'tauphobic' in args.output: mod='tauphobic'
+
+scen=''
+if 'scen2' in args.output: scen='scen2'
+if 'scen2_nobbb' in args.output: scen='scen2_nobbb'
 
 
 # Object storage
@@ -347,7 +420,13 @@ pads[1].GetFrame().Draw()
 pads[1].RedrawAxis()
 
 if mh122_contours is not None and len(mh122_contours)>0:
-    legend2 = ROOT.TLegend(0.6, 0.18 , 0.92, 0.23, '', 'NBNDC')
+    lx=0.6
+    ly=0.18
+    if mod=='tauphobic':
+      lx=0.19
+      ly=0.63
+    legend2 = ROOT.TLegend(lx,ly,lx+0.32,ly+0.05, '', 'NBNDC')
+#    legend2 = ROOT.TLegend(0.6, 0.18 , 0.92, 0.23, '', 'NBNDC')
     #legend2 = plot.PositionedLegend(0.4, 0.11, 3, 0.015)
     legend2.AddEntry(mh122_contours[0], "m_{h}^{MSSM} #neq 125 #pm 3 GeV","F")
     legend2.Draw()
@@ -361,6 +440,7 @@ latex.DrawLatex(0.155, 0.75, args.scenario_label)
 
 canv.Print('.pdf')
 canv.Print('.png')
+#canv.Print('.root')
 canv.Close()
 
 if debug is not None:

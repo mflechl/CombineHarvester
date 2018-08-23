@@ -2,9 +2,100 @@
 import CombineHarvester.CombineTools.plotting as plot
 import ROOT
 import argparse
+from math import isnan
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
+
+def manip(hist,typ,mod,lumi):
+  hist.SaveAs('hist_'+typ+'_before.C')
+  print 'MM',lumi
+  for x in xrange(1, hist.GetNbinsX()+1):
+#      for y in xrange(hist.GetNbinsY(), 0, -1):
+      for y in xrange(1, hist.GetNbinsY()+1):                                                                                                         
+
+          val=hist.GetBinContent(x,y)
+
+          if mod=='tauphobic' and lumi=='3000.0' and scen=='scen2':
+            if ( (  typ=='exp0' and
+                    ( x==78 and (y==16 or y==17) ) or
+                    ( x==79 and (y==17 or y==18) ) or
+                    ( x==80 and  y==18           ) or
+                    ( x==81 and  y==18           )
+                    ) or
+                 (  typ=='exp+2' and
+                    ( x==66 and (y>=14 and y<=20) ) or
+                    ( x==67 and (y>=14 and y<=20) ) or
+                    ( x==68 and (y>=15 and y<=20) ) or
+                    ( x==69 and (y>=15 and y<=20) ) or
+                    ( x==70 and (y>=16 and y<=20) ) or
+                    ( x==71 and (y>=17 and y<=20) ) or
+                    ( x==72 and (y>=17 and y<=20) ) or
+                    ( x==73 and (y>=18 and y<=20) ) or
+                    ( x==74 and  y==19           )
+                    )
+                 ):
+              newval=( 49*hist.GetBinContent(x,y+1) + hist.GetBinContent(x,y-1) )/50.0
+              hist.SetBinContent(x,y,newval)
+              print 'ZZ'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+' ==> '+str(newval)
+              continue
+
+          if mod=='tauphobic' and lumi=='300.0' and scen=='scen2':
+            if (  typ=='exp0' and
+                  ( x==61 and (y>=15 and y<=19) ) or
+                  ( x==62 and (y>=15 and y<=19) ) or
+                  ( x==63 and (y>=16 and y<=20) ) or
+                  ( x==64 and (y>=17 and y<=20) ) or
+                  ( x==65 and (y>=17 and y<=21) ) or #18                                                                                              
+                  ( x==66 and (y>=18 and y<=21) ) or
+                  ( x==67 and (y>=18 and y<=22) ) or #19                                                                                              
+                  ( x==68 and (y>=19 and y<=22) ) or
+                  ( x==69 and (y>=20 and y<=22) ) or
+                  ( x==70 and (y>=21 and y<=22) ) or
+                  ( x==71 and (y>=21 and y<=22) ) or #22                                                                                              
+                  ( x==72 and (y>=22 and y<=22) ) or
+                  ( x==73 and (y>=22 and y<=22) ) or
+                  ( x==74 and (y>=23 and y<=23) )
+                  ):
+              newval=0.04 #( 99*hist.GetBinContent(x,y+1) + hist.GetBinContent(x,y-1) )/100.0                                                         
+              hist.SetBinContent(x,y,newval)
+              print 'ZZ'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+' ==> '+str(newval)
+              continue
+            if (  typ=='exp0' and
+                  ( x==66 and (y>=16 and y<=17) ) or
+                  ( x==67 and (y>=16 and y<=17) ) or #19                                                                                              
+                  ( x==68 and (y>=17 and y<=18) ) or
+                  ( x==69 and (y>=18 and y<=19) ) or
+                  ( x==70 and (y>=19 and y<=20) )
+                  ):
+              newval=0.06 #( 99*hist.GetBinContent(x,y+1) + hist.GetBinContent(x,y-1) )/100.0                                                         
+              hist.SetBinContent(x,y,newval)
+              print 'ZZ'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+' ==> '+str(newval)
+              continue
+
+          if mod=='tauphobic' and ( lumi=='3000.0' or lumi=='300.0' ) and (x==0 or x==1 or x==2):
+            newval=0.01
+            hist.SetBinContent(x,y,newval)
+            print 'YY'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+' ==> '+str(newval)
+          elif isnan(val) or val<1e-12:
+#              print 'XX'+typ+'    '+str(hist.GetBinLowEdge(x))+' / '+str(hist.GetBinLowy)+' = '+str(hist.GetBinContent(x,y))                          
+              babove=hist.GetBinContent(x,y+1)
+              bbelow=hist.GetBinContent(x,y-1)
+              bleft=hist.GetBinContent(x-1,y)
+              bright=hist.GetBinContent(x+1,y)
+              newval=1e-12
+              if bbelow > 1e-12 and babove > 1e-12: newval= (bbelow+babove)/2
+              elif bleft > 1e-12 and bright > 1e-12: newval= (bleft+bright)/2
+              elif babove > 1e-12: newval=babove
+              elif bbelow > 1e-12: newval=bbelow #                                                                                                     
+              elif bleft > 1e-12: newval=bleft #                                                                                                       
+              elif bright > 1e-12: newval=bright #                                                                                                     
+#              if mod=='hmssm' and ( lumi=='3000.0' or lumi=='300.0' ):
+#                if x==1: newval=0.01
+              print 'XX'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+' ==> '+str(newval)
+              hist.SetBinContent(x,y,newval)
+  hist.SaveAs('hist_'+typ+'_after.C')
+
 
 parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -93,6 +184,18 @@ file = ROOT.TFile(args.input)
 types = args.contours.split(',')
 CL = 1 - args.CL
 
+lumi='35.9'
+if '300.0' in args.output: lumi='300.0'
+if '3000.0' in args.output: lumi='3000.0'
+
+mod=''
+if 'hmssm' in args.output: mod='hmssm'
+elif 'tauphobic' in args.output: mod='tauphobic'
+
+scen=''
+if 'scen2' in args.output: scen='scen2'
+if 'scen2_nobbb' in args.output: scen='scen2_nobbb'
+
 # Object storage
 graphs = {c: file.Get(c) for c in types}
 hists = {}
@@ -102,11 +205,20 @@ extrafiles = {}
 extracontours = {}
 extragraphs = {}
 extrahists = {}
+extralumi = []
 
 if args.extra_contour_file is not None:
     contour_filenames  = args.extra_contour_file.split(',')
     extrafiles = [ROOT.TFile(f) for f in contour_filenames]
     extragraphs = [tf.Get('exp0') for tf in extrafiles]
+    for f in contour_filenames:
+      lumi_='35.9'
+      if '300.0' in f: lumi_='300.0'
+      if '3000.0' in f: lumi_='3000.0'
+      extralumi.append(lumi_)
+
+print 'MMM',extralumi
+      
 
 h_proto = plot.TH2FromTGraph2D(graphs[types[0]], method=args.bin_method,
                                force_x_width=args.force_x_width,
@@ -133,6 +245,7 @@ for c in types:
     print 'Filling histo for %s' % c
     hists[c] = h_proto.Clone(c)
     plot.fillTH2(hists[c], graphs[c])
+    manip(hists[c],c,mod,lumi)
     contours[c] = plot.contourFromTH2(hists[c], CL, 5, frameValue=1)
     if debug is not None:
         debug.WriteTObject(hists[c], 'hist_%s' % c)
@@ -143,6 +256,7 @@ for i,g in enumerate(extragraphs):
     print 'Filling histo for %s' % g
     extrahists[i] = h_proto.Clone('exp0')
     plot.fillTH2(extrahists[i], g)
+    manip(extrahists[i],'exp0',mod,extralumi[i])
     extracontours[i] = plot.contourFromTH2(extrahists[i], CL, 5, frameValue=1)
 
 #Extract mh contours if mh histogram exists:
@@ -318,7 +432,13 @@ pads[1].GetFrame().Draw()
 pads[1].RedrawAxis()
 
 if mh122_contours is not None and len(mh122_contours)>0:
-    legend2 = ROOT.TLegend(0.6, 0.18 , 0.92, 0.23, '', 'NBNDC')
+    lx=0.6
+    ly=0.18
+    if mod=='tauphobic':
+      lx=0.19
+      ly=0.63
+#    legend2 = ROOT.TLegend(0.6, 0.18 , 0.92, 0.23, '', 'NBNDC')
+    legend2 = ROOT.TLegend(lx,ly,lx+0.32,ly+0.05, '', 'NBNDC')
     #legend2 = plot.PositionedLegend(0.4, 0.11, 3, 0.015)
     legend2.AddEntry(mh122_contours[0], "m_{h}^{MSSM} #neq 125 #pm 3 GeV","F")
     legend2.Draw()

@@ -187,6 +187,8 @@ def main(argv):
         yrange='--y-range 1,50 '
       if model=='lightstop':
         scenlabel='light-stop scenario'
+      if model=='lightstau':
+        scenlabel='light-stau scenario'
       if model=='lowtb':
         scenlabel='low tan #beta scenario'
       it=0
@@ -211,7 +213,7 @@ def main(argv):
       if 'New jobs were created' in ret: #jobs were just submitted, only do this on final run
         print 'New jobs were created... rerun limit step once they are done to produce plots.'
       else:
-        pcall='python ../../../CombineTools/scripts/plotLimitGrid.py asymptotic_grid.root --scenario-label="'+scenlabel+'" --output="mssm_'+mdir+'" --title-right="'+str(args.lumi)+' fb^{-1} ('+cme+' TeV)" --cms-sub="Preliminary" --contours="exp-2,exp-1,exp0,exp+1,exp+2,obs" --x-range 90,2000 '+yrange+'--model_file='+rundir+'shapes/Models/'+modelfile+' | grep -v "has.*points\|Two of these three" &> '+basedir+'/log_plotlim.txt'
+        pcall='python ../../../CombineTools/scripts/plotLimitGrid.py asymptotic_grid.root --scenario-label="'+scenlabel+'" --output="mssm_'+mdir+'" --title-right="'+str(args.lumi)+' fb^{-1} ('+cme+' TeV)" --cms-sub="Preliminary" --contours="exp-2,exp-1,exp0,exp+1,exp+2" --x-range 90,2000 '+yrange+'--model_file='+rundir+'shapes/Models/'+modelfile+' | grep -v "has.*points\|Two of these three" &> '+basedir+'/log_plotlim.txt'
 #for i in jun28*; do cp -p $i/mssm_mhmod_cmb.png mssm_mhmod_$i.png; cp -p $i/asymptotic_grid.root asymptotic_grid_$i.root; done
 
         import socket
