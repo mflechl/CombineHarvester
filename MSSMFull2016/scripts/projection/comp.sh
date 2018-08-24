@@ -2,17 +2,27 @@
 declare -A ds
 
 d='output/'
-tag='jul05_'
-tag2='jul05_'
+tag='jul17_'
+tag2='jul20_'
 tag3='jul07_'
 
-ds_nosys=( ${d}${tag}'lumi-35.9_nosyst/'       ${d}${tag2}'lumi-300.0_nosyst/'    ${d}${tag2}'lumi-3000.0_nosyst/' )
-ds_nosca=( ${d}${tag}'lumi-35.9/'              ${d}${tag2}'lumi-300.0/'           ${d}${tag2}'lumi-3000.0/' )
-ds_scall=( ${d}${tag}'lumi-35.9_scale-all/'    ${d}${tag2}'lumi-300.0_scale-all/' ${d}${tag2}'lumi-3000.0_scale-all/' )
-ds_scbbb=( ${d}${tag}'lumi-35.9_scale-bbb/'    ${d}${tag2}'lumi-300.0_scale-bbb/' ${d}${tag2}'lumi-3000.0_scale-bbb/' )
-ds_scsc2=( ${d}${tag3}'lumi-35.9_scale-scen2/' ${d}${tag3}'lumi-300.0_scale-scen2/' ${d}${tag3}'lumi-3000.0_scale-scen2/' )
-ds_scnob=( ${d}${tag3}'lumi-35.9_scale-scen2_nobbb/' ${d}${tag3}'lumi-300.0_scale-scen2_nobbb/' ${d}${tag3}'lumi-3000.0_scale-scen2_nobbb/' )
-o='output/limit_comp' 
+ds_nosys=( ${d}${tag}'lumi-35.9_nosyst/'       ${d}${tag}'lumi-300.0_nosyst/'      ${d}${tag}'lumi-3000.0_nosyst/' )
+ds_nosca=( ${d}${tag}'lumi-35.9/'              ${d}${tag}'lumi-300.0/'             ${d}${tag}'lumi-3000.0/' )
+ds_scall=( ${d}${tag}'lumi-35.9_scale-all/'    ${d}${tag}'lumi-300.0_scale-all/'   ${d}${tag}'lumi-3000.0_scale-all/' )
+ds_scbbb=( ${d}${tag}'lumi-35.9_scale-bbb/'    ${d}${tag}'lumi-300.0_scale-bbb/'   ${d}${tag}'lumi-3000.0_scale-bbb/' )
+ds_scsc2=( ${d}${tag}'lumi-35.9_scale-scen2/'  ${d}${tag}'lumi-300.0_scale-scen2/' ${d}${tag}'lumi-3000.0_scale-scen2/' )
+ds_scnob=( ${d}${tag}'lumi-35.9_scale-scen2_nobbb/' ${d}${tag}'lumi-300.0_scale-scen2_nobbb/' ${d}${tag}'lumi-3000.0_scale-scen2_nobbb/' )
+
+
+pas=1
+
+o="output/limit_comp"
+lbl="Internal"
+
+if [ "$pas" == "1" ]; then
+    o="output/limit_comp_pas"
+    lbl="Preliminary Simulation"
+fi
 
 
 #modes=( 'no_systematics' 'no_scaling'  'scale_all' 'scale_bbb' 'scale_scen2' 'scale_scen2-nobbb' )
@@ -30,7 +40,10 @@ for m in ${modes[@]}; do
     for d in ${!ds[$m]}; do ds_[i]=$d; let i=$i+1; done
 
     for p in 'ggH' 'bbH'; do
-	title_left="${p}, `echo $m | tr _ ' '`"
+	title_left=""
+	if [ "$pas" != "1" ]; then
+	    title_left="${p}, `echo $m | tr _ ' '`"
+	fi
 	echo "##### $title_left #####"
 	lterm=''
 	for i in `seq 0 $(( ${#lumi[@]} - 1 ))`; do
@@ -38,7 +51,7 @@ for m in ${modes[@]}; do
 	    lterm+=" "
 	done
 	echo Using $lterm
-	python scripts/plotMSSMLimits.py --logy --logx --show exp0 $lterm --cms-sub="Internal" -o ${o}/${m}_${p} --process=${p:0:2}'#phi' --title-right="13 TeV" --use-hig-17-020-style --auto-style --ratio-to ${ds_[0]}${p}'_cmb.json:exp0' --title-left="$title_left"
+	python scripts/plotMSSMLimits.py --logy --logx --show exp0 $lterm --cms-sub="${lbl}" -o ${o}/${m}_${p} --process=${p:0:2}'#phi' --title-right="13 TeV" --use-hig-17-020-style --auto-style --ratio-to ${ds_[0]}${p}'_cmb.json:exp0' --title-left="$title_left"
     done
 done
 
@@ -61,7 +74,7 @@ for l in ${lumi[@]}; do
 	    lterm+=" "
 	done
 	echo Using $lterm
-	python scripts/plotMSSMLimits.py --logy --logx --show exp0 $lterm --cms-sub="Internal" -o ${o}/${lumititle}fb_${p} --process=${p:0:2}'#phi' --title-right="13 TeV" --use-hig-17-020-style --auto-style --ratio-to ${ds_[0]}${p}'_cmb.json:exp0' --title-left="$title_left"
+	python scripts/plotMSSMLimits.py --logy --logx --show exp0 $lterm --cms-sub="${lbl}" -o ${o}/${lumititle}fb_${p} --process=${p:0:2}'#phi' --title-right="13 TeV" --use-hig-17-020-style --auto-style --ratio-to ${ds_[0]}${p}'_cmb.json:exp0' --title-left="$title_left"
     done
 done
 

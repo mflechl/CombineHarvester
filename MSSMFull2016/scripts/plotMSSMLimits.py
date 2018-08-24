@@ -173,6 +173,8 @@ else:
 #    legend = plot.PositionedLegend(0.15, 0.2, 3, 0.015) #0.25
     legend = plot.PositionedLegend(0.25, 0.2, 3, 0.015) #0.25
     legend.SetTextSize(0.03)
+    if len(args.input)<4:
+        legend.SetTextSize(0.045)
 
 if args.do_new_ggH:
     if not (args.higgs_bg or args.higgs_injected): 
