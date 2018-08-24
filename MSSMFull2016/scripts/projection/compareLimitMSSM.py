@@ -432,8 +432,10 @@ pads[1].GetFrame().Draw()
 pads[1].RedrawAxis()
 
 if mh122_contours is not None and len(mh122_contours)>0:
-    lx=0.6
-    ly=0.18
+#    lx=0.6
+#    ly=0.18
+    lx=0.19
+    ly=0.63
     if mod=='tauphobic':
       lx=0.19
       ly=0.63
