@@ -33,6 +33,7 @@ def main(argv):
   parser.add_argument('--loglevel', dest='loglevel', type=int, default=1,                                             help='Verbosity, 0-essential, 1-most commands, 2-all commands')
   parser.add_argument('--outdir',   dest='outdir',             default=mdir,                                          help='root of output dir name (default: date/time)')
   parser.add_argument('--symdir',   dest='symdir',             default='latest/',                                     help='Symlink of output dir (change when running parallel!)')
+  parser.add_argument('--dim2',     dest='dim2', nargs='?',    default=False, const=True,                             help='Do 2D limits (only for model-independent)')
   parser.add_argument('--dryrun',   dest='dryrun', nargs='?',  default=False, const=True,                             help='Dry run, do not execute commands')
   parser.add_argument('--lxb',      dest='lxb', nargs='?',     default=False, const=True,                             help='Run on lxbatch (AsymptoticGrid)')
 
@@ -45,6 +46,7 @@ def main(argv):
   scale=args.scale
   loglevel=args.loglevel
   model=args.model
+  dim2=args.dim2
 #  mdir+='_lumi-'+str(args.lumi)
   customdir=False
   if mdir != args.outdir:
@@ -94,7 +96,7 @@ def main(argv):
   os.chdir(rundir)
   ############################################## DATACARD
   if 'datacard' in args.mode:
-    pcall_base='MorphingMSSMFull2016 --output_folder='+symdir+' --manual_rebin=true --real_data=false --bbb_threshold='+str(args.bbb)
+    pcall_base='MorphingMSSMFull2016 --output_folder='+symdir+' --manual_rebin=true --real_data=false --bbb_threshold='+str(args.bbb) + ' -h "bkg_SM125"'
     if model=='none':
       pcall=pcall_base+' -m MH'
     else:
@@ -153,7 +155,7 @@ def main(argv):
     nfreeze='lumi'
     if not syst: nfreeze='all'
 
-    if model=='none':
+    if model=='none' and not dim2:
       proc=[ 'ggH' , 'bbH' ]
       make_pcall('echo Processes: '+str(proc)+' > '+basedir+'/log_lim.txt','',2)
       for p in proc:
@@ -163,6 +165,13 @@ def main(argv):
         make_pcall(pcall1,'Producing  limit for '+p,0)
         make_pcall(pcall2,'Collecting limit for '+p,0)
         make_pcall(pcall3,'Plotting   limit for '+p,0)
+    elif model=='none' and dim2:
+        pcall1='combineTool.py -m "90,100,110,120,130,140,160,180,200,250,350,400,450,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2300,2600,2900,3200" -M MultiDimFit -t -1 --parallel 8 --boundlist input/mssm_ggH_bbH_2D_boundaries.json --setPhysicsModelParameters r_ggH=0,r_bbH=0,lumi='+str(lumiscale)+' --freezeNuisances '+nfreeze+' --floatAllNuisances 1 --redefineSignalPOIs r_ggH,r_bbH -d output/'+symdir+'cmb/ws.root --there -n ".ggH-bbH" --points 500 --algo grid &>> '+basedir+'/log_lim.txt'
+#        pcall2='combineTool.py -M CollectLimits output/'+symdir+'cmb/higgsCombine.'+p+'*.root --use-dirs -o "output/'+symdir+p+'.json" &>> '+basedir+'/log_lim.txt'
+        pcall3='python scripts/plotMultiDimFit.py --cms-sub="Preliminary" -o output/'+symdir+'2d_cmb --title-right="'+str(args.lumi)+' fb^{-1} ('+cme+' TeV)" --mass 350 -o 2d_mH350 output/'+symdir+'cmb/higgsCombine.ggH-bbH.MultiDimFit.mH350.root  >> '+basedir+'/log_lim.txt'
+        make_pcall(pcall1,'Producing  2D limit for mass '+str(350),0)
+#        make_pcall(pcall2,'Collecting limit for '+p,0)
+        make_pcall(pcall3,'Plotting   2D limit for mass '+str(350),0)
     else:
       os.chdir(basedir)
       dp='../../'

@@ -474,6 +474,7 @@ def CreateAxisHist(src, at_limits=True):
             if x > max:
                 max = float(x)
         result.GetXaxis().SetLimits(min, max)
+    result.GetXaxis().SetMoreLogLabels(1)
     R.gPad = backup
     return result
 

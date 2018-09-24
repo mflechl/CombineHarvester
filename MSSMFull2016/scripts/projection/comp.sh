@@ -8,10 +8,10 @@ tag3='jul07_'
 
 ds_nosys=( ${d}${tag}'lumi-35.9_nosyst/'       ${d}${tag}'lumi-300.0_nosyst/'      ${d}${tag}'lumi-3000.0_nosyst/' )
 ds_nosca=( ${d}${tag}'lumi-35.9/'              ${d}${tag}'lumi-300.0/'             ${d}${tag}'lumi-3000.0/' )
-ds_scall=( ${d}${tag}'lumi-35.9_scale-all/'    ${d}${tag}'lumi-300.0_scale-all/'   ${d}${tag}'lumi-3000.0_scale-all/' )
-ds_scbbb=( ${d}${tag}'lumi-35.9_scale-bbb/'    ${d}${tag}'lumi-300.0_scale-bbb/'   ${d}${tag}'lumi-3000.0_scale-bbb/' )
+#ds_scall=( ${d}${tag}'lumi-35.9_scale-all/'    ${d}${tag}'lumi-300.0_scale-all/'   ${d}${tag}'lumi-3000.0_scale-all/' )
+#ds_scbbb=( ${d}${tag}'lumi-35.9_scale-bbb/'    ${d}${tag}'lumi-300.0_scale-bbb/'   ${d}${tag}'lumi-3000.0_scale-bbb/' )
 ds_scsc2=( ${d}${tag}'lumi-35.9_scale-scen2/'  ${d}${tag}'lumi-300.0_scale-scen2/' ${d}${tag}'lumi-3000.0_scale-scen2/' )
-ds_scnob=( ${d}${tag}'lumi-35.9_scale-scen2_nobbb/' ${d}${tag}'lumi-300.0_scale-scen2_nobbb/' ${d}${tag}'lumi-3000.0_scale-scen2_nobbb/' )
+#ds_scnob=( ${d}${tag}'lumi-35.9_scale-scen2_nobbb/' ${d}${tag}'lumi-300.0_scale-scen2_nobbb/' ${d}${tag}'lumi-3000.0_scale-scen2_nobbb/' )
 
 
 pas=1
@@ -20,20 +20,26 @@ o="output/limit_comp"
 lbl="Internal"
 
 if [ "$pas" == "1" ]; then
-    o="output/limit_comp_pas"
-    lbl="Preliminary Simulation"
+#    o="output/limit_comp_pas"
+    o="output/limit_comp_int"
+#    lbl="Preliminary Simulation"
+#    lbl="Projection"
+    lbl="Internal"
 fi
 
 
-#modes=( 'no_systematics' 'no_scaling'  'scale_all' 'scale_bbb' 'scale_scen2' 'scale_scen2-nobbb' )
-modes=( 'no_systematics' 'no_scaling'  'scale_all' 'scale_bbb' 'scen2' 'scen2_nobbb' )
-lumi=(  '35.9_fb^{-1}'   '300_fb^{-1}' '3000_fb^{-1}'          )
+#modes=( 'no_systematics' 'no_scaling'  'scale_all' 'scale_bbb' 'scen2' 'scen2_nobbb' )
+#scripts/plotMSSMLimits.py , line 264
+#modes=( 'no_systematics' 'no_scaling'  'scen2' )
+modes=( 'no_scaling'   'scen2'  'no_systematics' )
+#lumi=(  '35.9_fb^{-1}'   '300_fb^{-1}' '3000_fb^{-1}'          )
+lumi=(  'HIG-17-020'   '300_fb^{-1}' '3000_fb^{-1}'          )
 ds[no_systematics]=ds_nosys[@]
 ds[no_scaling]=ds_nosca[@]
-ds[scale_all]=ds_scall[@]
-ds[scale_bbb]=ds_scbbb[@]
+#ds[scale_all]=ds_scall[@]
+#ds[scale_bbb]=ds_scbbb[@]
 ds[scen2]=ds_scsc2[@]
-ds[scen2_nobbb]=ds_scnob[@]
+#ds[scen2_nobbb]=ds_scnob[@]
 
 for m in ${modes[@]}; do 
     i=0
