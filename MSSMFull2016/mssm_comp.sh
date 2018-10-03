@@ -11,7 +11,9 @@ lbl="Internal"
 
 if [ "$pas" == "1" ]; then
     od="mssmplots_pas/"
-    lbl="Preliminary Simulation"
+#    lbl="Preliminary Simulation"
+#    lbl="Internal"
+    lbl="Projection"
 fi
 
 
@@ -37,28 +39,28 @@ fi
    if [ "${pas}" != "1" ]; then
        sl="${2} scenario, S2"
    fi
-   python ../scripts/projection/compareLimitMSSM.py ${od}asymptotic_grid_${1}_lumi-35.9_scale-scen2_${3}.root --scenario-label="${sl}" --output="${od}mssm_${3}_${1}_scen2" --title-right="35.9 fb^{-1}" --cms-sub="${lbl}" --contours="exp-2,exp-1,exp0,exp+1,exp+2" --x-range 90,2000 $yrange --model_file=/afs/cern.ch/work/m/mflechl/mssm_asymgrid/CMSSW_7_4_7/src/CombineHarvester/MSSMFull2016/shapes/Models/${4}_13TeV.root --extra_contour_file=${od}asymptotic_grid_${1}_lumi-300.0_scale-scen2_${3}.root,${od}asymptotic_grid_${1}_lumi-3000.0_scale-scen2_${3}.root --extra_contour_title='300 fb^{-1}','3000 fb^{-1}' --extra_contour_style=2,2 --extra_contour_color=4,2 | grep -v "has.*points\|Two of these three"
+   python ../scripts/projection/compareLimitMSSM.py ${od}asymptotic_grid_${1}_lumi-35.9_scale-scen2_${3}.root --scenario-label="${sl}" --output="${od}mssm_${3}_${1}_scen2" --cms-sub="${lbl}" --contours="exp-2,exp-1,exp0,exp+1,exp+2" --x-range 90,2000 $yrange --model_file=/afs/cern.ch/work/m/mflechl/mssm_asymgrid/CMSSW_7_4_7/src/CombineHarvester/MSSMFull2016/shapes/Models/${4}_13TeV.root --extra_contour_file=${od}asymptotic_grid_${1}_lumi-300.0_scale-scen2_${3}.root,${od}asymptotic_grid_${1}_lumi-3000.0_scale-scen2_${3}.root --extra_contour_title='300 fb^{-1}','3000 fb^{-1}' --extra_contour_style=2,2 --extra_contour_color=4,2 | grep -v "has.*points\|Two of these three"
 
 if [ "$pas" == "1" ]; then
     return
 fi
 
 #S2, no bbb
-   python ../scripts/projection/compareLimitMSSM.py ${od}asymptotic_grid_${1}_lumi-35.9_scale-scen2_nobbb_${3}.root --scenario-label="${2} scenario, S2 (no bbb)" --output="${od}mssm_${3}_${1}_scen2_nobbb" --title-right="35.9 fb^{-1}" --cms-sub="${lbl}" --contours="exp-2,exp-1,exp0,exp+1,exp+2" --x-range 90,2000 $yrange --model_file=/afs/cern.ch/work/m/mflechl/mssm_asymgrid/CMSSW_7_4_7/src/CombineHarvester/MSSMFull2016/shapes/Models/${4}_13TeV.root --extra_contour_file=${od}asymptotic_grid_${1}_lumi-300.0_scale-scen2_nobbb_${3}.root,${od}asymptotic_grid_${1}_lumi-3000.0_scale-scen2_nobbb_${3}.root --extra_contour_title='300 fb^{-1}','3000 fb^{-1}' --extra_contour_style=2,2 --extra_contour_color=4,2 | grep -v "has.*points\|Two of these three"
+   python ../scripts/projection/compareLimitMSSM.py ${od}asymptotic_grid_${1}_lumi-35.9_scale-scen2_nobbb_${3}.root --scenario-label="${2} scenario, S2 (no bbb)" --output="${od}mssm_${3}_${1}_scen2_nobbb" --cms-sub="${lbl}" --contours="exp-2,exp-1,exp0,exp+1,exp+2" --x-range 90,2000 $yrange --model_file=/afs/cern.ch/work/m/mflechl/mssm_asymgrid/CMSSW_7_4_7/src/CombineHarvester/MSSMFull2016/shapes/Models/${4}_13TeV.root --extra_contour_file=${od}asymptotic_grid_${1}_lumi-300.0_scale-scen2_nobbb_${3}.root,${od}asymptotic_grid_${1}_lumi-3000.0_scale-scen2_nobbb_${3}.root --extra_contour_title='300 fb^{-1}','3000 fb^{-1}' --extra_contour_style=2,2 --extra_contour_color=4,2 | grep -v "has.*points\|Two of these three"
 
 if [ "${3}"=="tauphobic" ] || [ "${3}"=="lightstau" ]; then return; fi
 
 #No scaling
-    python ../scripts/projection/compareLimitMSSM.py ${od}asymptotic_grid_${1}_lumi-35.9_${3}.root --scenario-label="${2} scenario, no scaling" --output="${od}mssm_${3}_${1}_noscale" --title-right="35.9 fb^{-1}" --cms-sub="${lbl}" --contours="exp-2,exp-1,exp0,exp+1,exp+2" --x-range 90,2000 $yrange --model_file=/afs/cern.ch/work/m/mflechl/mssm_asymgrid/CMSSW_7_4_7/src/CombineHarvester/MSSMFull2016/shapes/Models/${4}_13TeV.root --extra_contour_file=${od}asymptotic_grid_${1}_lumi-300.0_${3}.root,${od}asymptotic_grid_${1}_lumi-3000.0_${3}.root --extra_contour_title='300 fb^{-1}','3000 fb^{-1}' --extra_contour_style=2,2 --extra_contour_color=4,2 | grep -v "has.*points\|Two of these three"
+    python ../scripts/projection/compareLimitMSSM.py ${od}asymptotic_grid_${1}_lumi-35.9_${3}.root --scenario-label="${2} scenario, no scaling" --output="${od}mssm_${3}_${1}_noscale" --cms-sub="${lbl}" --contours="exp-2,exp-1,exp0,exp+1,exp+2" --x-range 90,2000 $yrange --model_file=/afs/cern.ch/work/m/mflechl/mssm_asymgrid/CMSSW_7_4_7/src/CombineHarvester/MSSMFull2016/shapes/Models/${4}_13TeV.root --extra_contour_file=${od}asymptotic_grid_${1}_lumi-300.0_${3}.root,${od}asymptotic_grid_${1}_lumi-3000.0_${3}.root --extra_contour_title='300 fb^{-1}','3000 fb^{-1}' --extra_contour_style=2,2 --extra_contour_color=4,2 | grep -v "has.*points\|Two of these three"
 
 #all
-    python ../scripts/projection/compareLimitMSSM.py ${od}asymptotic_grid_${1}_lumi-35.9_scale-all_${3}.root --scenario-label="${2} scenario, all scaled" --output="${od}mssm_${3}_${1}_all" --title-right="35.9 fb^{-1}" --cms-sub="${lbl}" --contours="exp-2,exp-1,exp0,exp+1,exp+2" --x-range 90,2000 $yrange --model_file=/afs/cern.ch/work/m/mflechl/mssm_asymgrid/CMSSW_7_4_7/src/CombineHarvester/MSSMFull2016/shapes/Models/${4}_13TeV.root --extra_contour_file=${od}asymptotic_grid_${1}_lumi-300.0_scale-all_${3}.root,${od}asymptotic_grid_${1}_lumi-3000.0_scale-all_${3}.root --extra_contour_title='300 fb^{-1}','3000 fb^{-1}' --extra_contour_style=2,2 --extra_contour_color=4,2 | grep -v "has.*points\|Two of these three"
+    python ../scripts/projection/compareLimitMSSM.py ${od}asymptotic_grid_${1}_lumi-35.9_scale-all_${3}.root --scenario-label="${2} scenario, all scaled" --output="${od}mssm_${3}_${1}_all" --cms-sub="${lbl}" --contours="exp-2,exp-1,exp0,exp+1,exp+2" --x-range 90,2000 $yrange --model_file=/afs/cern.ch/work/m/mflechl/mssm_asymgrid/CMSSW_7_4_7/src/CombineHarvester/MSSMFull2016/shapes/Models/${4}_13TeV.root --extra_contour_file=${od}asymptotic_grid_${1}_lumi-300.0_scale-all_${3}.root,${od}asymptotic_grid_${1}_lumi-3000.0_scale-all_${3}.root --extra_contour_title='300 fb^{-1}','3000 fb^{-1}' --extra_contour_style=2,2 --extra_contour_color=4,2 | grep -v "has.*points\|Two of these three"
 
 #bbb
-    python ../scripts/projection/compareLimitMSSM.py ${od}asymptotic_grid_${1}_lumi-35.9_scale-bbb_${3}.root --scenario-label="${2} scenario, bbb scaled" --output="${od}mssm_${3}_${1}_bbb" --title-right="35.9 fb^{-1}" --cms-sub="${lbl}" --contours="exp-2,exp-1,exp0,exp+1,exp+2" --x-range 90,2000 $yrange --model_file=/afs/cern.ch/work/m/mflechl/mssm_asymgrid/CMSSW_7_4_7/src/CombineHarvester/MSSMFull2016/shapes/Models/${4}_13TeV.root --extra_contour_file=${od}asymptotic_grid_${1}_lumi-300.0_scale-bbb_${3}.root,${od}asymptotic_grid_${1}_lumi-3000.0_scale-bbb_${3}.root --extra_contour_title='300 fb^{-1}','3000 fb^{-1}' --extra_contour_style=2,2 --extra_contour_color=4,2 | grep -v "has.*points\|Two of these three"
+    python ../scripts/projection/compareLimitMSSM.py ${od}asymptotic_grid_${1}_lumi-35.9_scale-bbb_${3}.root --scenario-label="${2} scenario, bbb scaled" --output="${od}mssm_${3}_${1}_bbb" --cms-sub="${lbl}" --contours="exp-2,exp-1,exp0,exp+1,exp+2" --x-range 90,2000 $yrange --model_file=/afs/cern.ch/work/m/mflechl/mssm_asymgrid/CMSSW_7_4_7/src/CombineHarvester/MSSMFull2016/shapes/Models/${4}_13TeV.root --extra_contour_file=${od}asymptotic_grid_${1}_lumi-300.0_scale-bbb_${3}.root,${od}asymptotic_grid_${1}_lumi-3000.0_scale-bbb_${3}.root --extra_contour_title='300 fb^{-1}','3000 fb^{-1}' --extra_contour_style=2,2 --extra_contour_color=4,2 | grep -v "has.*points\|Two of these three"
 
 #no syst
-    python ../scripts/projection/compareLimitMSSM.py ${od}asymptotic_grid_${1}_lumi-35.9_nosyst_${3}.root --scenario-label="${2} scenario, no systematics" --output="${od}mssm_${3}_${1}_nosyst" --title-right="35.9 fb^{-1}" --cms-sub="${lbl}" --contours="exp-2,exp-1,exp0,exp+1,exp+2" --x-range 90,2000 $yrange --model_file=/afs/cern.ch/work/m/mflechl/mssm_asymgrid/CMSSW_7_4_7/src/CombineHarvester/MSSMFull2016/shapes/Models/${4}_13TeV.root --extra_contour_file=${od}asymptotic_grid_${1}_lumi-300.0_nosyst_${3}.root,${od}asymptotic_grid_${1}_lumi-3000.0_nosyst_${3}.root --extra_contour_title='300 fb^{-1}','3000 fb^{-1}' --extra_contour_style=2,2 --extra_contour_color=4,2 | grep -v "has.*points\|Two of these three"
+    python ../scripts/projection/compareLimitMSSM.py ${od}asymptotic_grid_${1}_lumi-35.9_nosyst_${3}.root --scenario-label="${2} scenario, no systematics" --output="${od}mssm_${3}_${1}_nosyst" --cms-sub="${lbl}" --contours="exp-2,exp-1,exp0,exp+1,exp+2" --x-range 90,2000 $yrange --model_file=/afs/cern.ch/work/m/mflechl/mssm_asymgrid/CMSSW_7_4_7/src/CombineHarvester/MSSMFull2016/shapes/Models/${4}_13TeV.root --extra_contour_file=${od}asymptotic_grid_${1}_lumi-300.0_nosyst_${3}.root,${od}asymptotic_grid_${1}_lumi-3000.0_nosyst_${3}.root --extra_contour_title='300 fb^{-1}','3000 fb^{-1}' --extra_contour_style=2,2 --extra_contour_color=4,2 | grep -v "has.*points\|Two of these three"
 
 }
 

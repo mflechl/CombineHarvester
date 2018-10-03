@@ -3,7 +3,8 @@
 lumis=( 35.9 )
 odir="sep21"
 
-modes="all" #model-indep
+modes="datacard ws" #model-indep
+#modes="all" #model-indep
 #modes="allnp" #model-indep
 #modes="mlfit np" #model-indep
 #extra=""

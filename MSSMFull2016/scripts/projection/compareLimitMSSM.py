@@ -404,15 +404,17 @@ legend = plot.PositionedLegend(0.8, 0.12, 3, 0.015)
 plot.Set(legend, NColumns=3, Header='#bf{%.0f%% CL expected exclusion:}' % (args.CL*100.))
 if 'obs' in contours:
     legend.AddEntry(contours['obs'][0], "Observed", "F")
-if 'exp-2' in contours and 'exp+2' in contours:
-    legend.AddEntry(contours['exp-2'][0], "#pm2#sigma, 35.9 fb^{-1}", "F")
-if 'exp-1' in contours and 'exp+1' in contours:
-    legend.AddEntry(contours['exp-1'][0], "#pm1#sigma, 35.9 fb^{-1}", "F")
 if 'exp0' in contours:
     if 'obs' in contours:
         legend.AddEntry(contours['exp0'][0], "Expected", "L")
     else:
-        legend.AddEntry(contours['exp0'][0], "35.9 fb^{-1}", "F")
+        legend.AddEntry(contours['exp0'][0], "HIG-17-020", "F")
+if 'exp-1' in contours and 'exp+1' in contours:
+#    legend.AddEntry(contours['exp-1'][0], "#pm1#sigma, 35.9 fb^{-1}", "F")
+    legend.AddEntry(contours['exp-1'][0], "#pm1#sigma", "F")
+if 'exp-2' in contours and 'exp+2' in contours:
+#    legend.AddEntry(contours['exp-2'][0], "#pm2#sigma, 35.9 fb^{-1}", "F")
+    legend.AddEntry(contours['exp-2'][0], "#pm2#sigma", "F")
 if extracontours is not None:
     if args.extra_contour_title is not None: 
         contour_title = args.extra_contour_title.split(',')
