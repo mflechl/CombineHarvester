@@ -5,9 +5,9 @@
   "grids" : [
     ["0:0.06|0.001", "0:0.06|0.001", ""]
   ],
-  "toys_per_cycle"  : 1,
+  "toys_per_cycle"  : 20,
   "min_toys"        : 0,
-  "max_toys"        : 200000,
+  "Max-_toys"        : 200000,
   "signif"          : 4.0,
   "CL"              : 0.95,
   "contours"        : ["obs"],

@@ -20,11 +20,12 @@ o="output/limit_comp"
 lbl="Internal"
 
 if [ "$pas" == "1" ]; then
-#    o="output/limit_comp_pas"
-    o="output/limit_comp_int"
+    o="output/limit_comp_pas"
+#    o="output/limit_comp_int"
+#    o="output/limit_comp_tmp"
 #    lbl="Preliminary Simulation"
-#    lbl="Projection"
-    lbl="Internal"
+    lbl="Projection"
+#    lbl="Internal"
 fi
 
 
@@ -46,9 +47,9 @@ for m in ${modes[@]}; do
     for d in ${!ds[$m]}; do ds_[i]=$d; let i=$i+1; done
 
     for p in 'ggH' 'bbH'; do
-	title_left=""
+	title_left="Scenario 2"
 	if [ "$pas" != "1" ]; then
-	    title_left="${p}, `echo $m | tr _ ' '`"
+	    title_left+=", ${p}, `echo $m | tr _ ' '`"
 	fi
 	echo "##### $title_left #####"
 	lterm=''
@@ -72,7 +73,8 @@ for l in ${lumi[@]}; do
 
     lumititle=${lumititle/"."/"p"}
     for p in 'ggH' 'bbH'; do
-	title_left="${p}, `echo $l | tr _ ' '`"
+#	title_left="${p}, `echo $l | tr _ ' '`"
+	title_left="`echo $l | tr _ ' '`"
 	echo "##### $title_left #####"
 	lterm=''
 	for i in `seq 0 $(( ${#modes[@]} - 1 ))`; do
