@@ -35,10 +35,10 @@ fi
 
 
 #S2
-   sl="${2}"
-   if [ "${pas}" != "1" ]; then
-       sl="${2} scenario, S2"
-   fi
+   sl="${2}, Scenario 2"
+#   if [ "${pas}" != "1" ]; then
+#       sl="${2} scenario, S2"
+#   fi
    python ../scripts/projection/compareLimitMSSM.py ${od}asymptotic_grid_${1}_lumi-35.9_scale-scen2_${3}.root --scenario-label="${sl}" --output="${od}mssm_${3}_${1}_scen2" --cms-sub="${lbl}" --contours="exp-2,exp-1,exp0,exp+1,exp+2" --x-range 90,2000 $yrange --model_file=/afs/cern.ch/work/m/mflechl/mssm_asymgrid/CMSSW_7_4_7/src/CombineHarvester/MSSMFull2016/shapes/Models/${4}_13TeV.root --extra_contour_file=${od}asymptotic_grid_${1}_lumi-300.0_scale-scen2_${3}.root,${od}asymptotic_grid_${1}_lumi-3000.0_scale-scen2_${3}.root --extra_contour_title='300 fb^{-1}','3000 fb^{-1}' --extra_contour_style=2,2 --extra_contour_color=4,2 | grep -v "has.*points\|Two of these three"
 
 if [ "$pas" == "1" ]; then
