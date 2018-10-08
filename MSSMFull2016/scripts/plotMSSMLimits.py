@@ -53,6 +53,8 @@ parser.add_argument(
 parser.add_argument(
     '--do-new-ggH', action='store_true', help="""Plotting t-only and b-only lines""")
 parser.add_argument(
+    '--print-ratio', action='store_true', help="""Print to std.out the ratio plot values""")
+parser.add_argument(
     '--use-hig-17-020-style', action='store_true', help="""Plot a dashed black line for the expected limit as in hig-17-020""")
 parser.add_argument('--table_vals', help='Amount of values to be written in a table for different masses', default=10)
 parser.add_argument(
@@ -338,6 +340,17 @@ if args.ratio_to is not None:
         ratio_graphs[-1].Draw('LP')
     ry_min, ry_max = (plot.GetPadYMin(pads[1]), plot.GetPadYMax(pads[1]))
     plot.FixBothRanges(pads[1], ry_min, 0.1, ry_max, 0.1)
+
+    if args.print_ratio:
+        xx=ROOT.Double(0)
+        yy=ROOT.Double(0)
+        lim_ratios = []
+        for ind in range(ratio_graphs[2].GetN()):
+            ratio_graphs[-1].GetPoint(ind,xx,yy)
+            print xx,yy
+            lim_ratios.append(round(yy,4))
+        print lim_ratios
+        
 
 
 pads[0].cd()
