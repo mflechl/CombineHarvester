@@ -174,7 +174,8 @@ else:
 #           def PositionedLegend(width, height, pos, offset, horizontaloffset=None):
 #    legend = plot.PositionedLegend(0.15, 0.2, 3, 0.015) #0.25
 #    legend = plot.PositionedLegend(0.25, 0.2, 3, 0.015) #0.25 #w/o 17-020 label
-    legend = plot.PositionedLegend(0.30, 0.2, 3, 0.015) #0.25  #w   17-020 label
+#    legend = plot.PositionedLegend(0.30, 0.2, 3, 0.015) #0.25  #w   17-020 label
+    legend = plot.PositionedLegend(0.56, 0.2, 3, 0.015) #0.25  #w   17-020 label
     legend.SetTextSize(0.03)
     if len(args.input)<4:
         legend.SetTextSize(0.045)
@@ -263,9 +264,9 @@ for src in args.input:
         if len(splitsrc) >= 3:
             settings.update({x.split('=')[0]: eval(x.split('=')[1]) for x in splitsrc[2].split(',')})
         if 'Title' in settings:
-            settings['Title']=settings['Title'].replace('no_systematics','Stat.-only ')
-            settings['Title']=settings['Title'].replace('no_scaling','Scenario 1')
-            settings['Title']=settings['Title'].replace('scen2','Scenario 2')
+            settings['Title']=settings['Title'].replace('no_systematics','with stat. uncert. only')
+            settings['Title']=settings['Title'].replace('no_scaling','with Run 2 syst. uncert.')
+            settings['Title']=settings['Title'].replace('scen2',     'with YR18 syst. uncert.')
             settings['Title']=settings['Title'].replace('_',' ')
         plot.Set(graphs[-1], **settings)
         if axis is None:

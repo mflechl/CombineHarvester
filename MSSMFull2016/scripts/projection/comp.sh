@@ -18,6 +18,7 @@ pas=1
 
 o="output/limit_comp"
 lbl="Internal"
+suf='_internal'
 
 if [ "$pas" == "1" ]; then
     o="output/limit_comp_pas"
@@ -25,6 +26,7 @@ if [ "$pas" == "1" ]; then
 #    o="output/limit_comp_tmp"
 #    lbl="Preliminary Simulation"
     lbl="Projection"
+    suf='_pas'
 #    lbl="Internal"
 fi
 
@@ -47,7 +49,7 @@ for m in ${modes[@]}; do
     for d in ${!ds[$m]}; do ds_[i]=$d; let i=$i+1; done
 
     for p in 'ggH' 'bbH'; do
-	title_left="Scenario 2"
+	title_left="with YR18 syst. uncert."
 	if [ "$pas" != "1" ]; then
 	    title_left+=", ${p}, `echo $m | tr _ ' '`"
 	fi
@@ -58,7 +60,7 @@ for m in ${modes[@]}; do
 	    lterm+=" "
 	done
 	echo Using $lterm
-	python scripts/plotMSSMLimits.py --logy --logx --show exp0 $lterm --cms-sub="${lbl}" -o ${o}/${m}_${p} --process=${p:0:2}'#phi' --title-right="13 TeV" --use-hig-17-020-style --auto-style --ratio-to ${ds_[0]}${p}'_cmb.json:exp0' --title-left="$title_left"
+	python scripts/plotMSSMLimits.py --logy --logx --show exp0 $lterm --cms-sub="${lbl}" -o ${o}/${m}_${p}${suf} --process=${p:0:2}'#phi' --title-right="13 TeV" --use-hig-17-020-style --auto-style --ratio-to ${ds_[0]}${p}'_cmb.json:exp0' --title-left="$title_left"
     done
 done
 
@@ -82,7 +84,7 @@ for l in ${lumi[@]}; do
 	    lterm+=" "
 	done
 	echo Using $lterm
-	python scripts/plotMSSMLimits.py --logy --logx --show exp0 $lterm --cms-sub="${lbl}" -o ${o}/${lumititle}fb_${p} --process=${p:0:2}'#phi' --title-right="13 TeV" --use-hig-17-020-style --auto-style --ratio-to ${ds_[0]}${p}'_cmb.json:exp0' --title-left="$title_left"
+	python scripts/plotMSSMLimits.py --logy --logx --show exp0 $lterm --cms-sub="${lbl}" -o ${o}/${lumititle}fb_${p}${suf} --process=${p:0:2}'#phi' --title-right="13 TeV" --use-hig-17-020-style --auto-style --ratio-to ${ds_[0]}${p}'_cmb.json:exp0' --title-left="$title_left"
     done
 done
 
