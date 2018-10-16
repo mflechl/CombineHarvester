@@ -452,7 +452,8 @@ if mh122_contours is not None and len(mh122_contours)>0:
 latex = ROOT.TLatex()
 latex.SetNDC()
 latex.SetTextSize(0.04)
-latex.DrawLatex(0.155, 0.75, args.scenario_label)
+#latex.DrawLatex(0.155, 0.75, args.scenario_label)
+latex.DrawLatex(0.147, 0.75, args.scenario_label)
 
 canv.Print('.pdf')
 canv.Print('.png')
