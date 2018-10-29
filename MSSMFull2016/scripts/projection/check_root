@@ -1,0 +1,93 @@
+#!/bin/bash
+
+declare -a fin
+declare -a broke
+declare -a run
+declare -a all
+
+verbose=0
+opt_mass=""
+
+if [ $# -ge 1 ]; then
+  if [ "$1" == "v" ]; then
+      verbose=1
+  else
+#      IFS=';' read -ra ADDR <<< "$IN"
+#      for i in "${ADDR[@]}"; do
+#
+#      done
+#      opt_mass="*mH${1}*"
+      if [[ $1 =~ .*,.* ]]; then
+	  opt_mass="mH{${1}}"
+      else
+	  opt_mass="mH${1}"
+      fi
+  fi
+fi
+if [ $# -ge 2 ]; then
+  verbose=1
+  if [ $2 -eq 2 ]; then verbose=$2; fi
+fi
+
+#for f in `ls $opt_mass`; do
+#  if [[ $f =~ higgsC.*root ]]; then     #if you use extensive wildcards above, will not work for more than 10 000 files in the dir
+
+lf=""
+
+for f in `eval ls -tr higgsC*${opt_mass}*root`; do
+#X  if [[ $f =~ higgsC.*root ]]; then     #if you use extensive wildcards above, will not work for more than 10 000 files in the dir
+
+      mass=`expr match "$f" '.*\.mH\([0-9]*\)\..*'`
+      size=$(stat -c%s "$f")
+      if [ ! -n "$size" ]; then size=0; fi
+#      echo $size  $f
+
+      let all["$mass"]=${all["$mass"]}+1
+      if [ ${size} -gt 1000 ]; then
+	  let fin["$mass"]=${fin["$mass"]}+1
+	  if [ $verbose -eq 2 ]; then
+              desc=`expr match "$f" 'higgsCombine\.\(.*\)\.MultiDim.*'`
+	      lf=`grep -l $desc ../../../job_*_m${mass}*sh`
+#	      echo $desc $lf
+	  fi
+      elif [ ${size} -lt 100 ] && [ ${size} -gt 0 ]; then
+	  let run["$mass"]=${run["$mass"]}+1
+      fi
+
+      if [ ${size} -eq 0 ] || ( [ ${size} -gt 100 ] && [ ${size} -lt 1000 ] ); then
+#      if [ ${size} -gt 1000 ] && [ "$mass" == "350"  ]; then
+	  let broke["$mass"]=${broke["$mass"]}+1
+	  
+	  if [ $verbose -eq 1 ]; then
+              desc=`expr match "$f" 'higgsCombine\.\(.*\)\.MultiDim.*'`
+	      sh_file=`grep -l $desc ../../../job_*_m${mass}*sh`
+              tmp=`echo $sh_file | sed s/\.sh//g`
+	      log_file=`ls ${tmp}_*log`
+              job_id=`expr match "$log_file" '.*_\([0-9]*\)\.log'`
+	      cmd=`cat $sh_file | grep "combine "`
+	      cmd=`expr match "$cmd" '.*\(combine\ .*\)'\;\ popd`
+	      points=`expr match "$cmd" '.*v1\.POINTS\.\(.*\)'`
+##	      echo $desc $sh_file $tmp $log_file $job_id
+##	      echo $log_file `grep "exit code\|Run time" $log_file`
+#	      echo $sh_file `grep "exit code\|Run time" $log_file`
+#	      echo $cmd
+#	      echo $sh_file $points
+	      echo $sh_file `ls -l ${f}`
+##	      echo $log_file `grep "Working directory" $log_file`
+#	      ls -l $log_file
+	  fi
+      fi
+#X  fi
+done
+
+if [ ! "$lf" == "" ]; then echo $lf; fi
+
+
+#for v in "${!broke[@]}"; do 
+for v in "${!all[@]}"; do 
+    echo "$v - broke: ${broke[$v]} - run: ${run[$v]} - done: ${fin[$v]} - all: ${all[$v]}"; 
+done
+
+#for v in "${!broke[@]}"; do 
+#    echo "$v - ${broke[$v] - - ${fin[$v]}"; 
+#done

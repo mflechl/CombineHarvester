@@ -175,9 +175,12 @@ else:
 #    legend = plot.PositionedLegend(0.15, 0.2, 3, 0.015) #0.25
 #    legend = plot.PositionedLegend(0.25, 0.2, 3, 0.015) #0.25 #w/o 17-020 label
 #    legend = plot.PositionedLegend(0.30, 0.2, 3, 0.015) #0.25  #w   17-020 label
-    legend = plot.PositionedLegend(0.56, 0.2, 3, 0.015) #0.25  #w   17-020 label
+
+#    legend = plot.PositionedLegend(0.56, 0.2, 3, 0.015) #0.25  #w   17-020 label #compare 3
+    legend = plot.PositionedLegend(0.56, 0.25, 3, 0.015) #0.25  #w   17-020 label #compare 4
     legend.SetTextSize(0.03)
-    if len(args.input)<4:
+#    if len(args.input)<4:
+    if len(args.input)<5:
         legend.SetTextSize(0.045)
 
 if args.do_new_ggH:

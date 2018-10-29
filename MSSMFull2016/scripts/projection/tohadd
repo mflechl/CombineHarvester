@@ -1,0 +1,3 @@
+#!/bin/bash
+
+hadd higgsCombine.ggH-bbH.40k.DataBase.noSMHinBG_3000fb_Asimov.v1.MultiDimFit.mH${1}.root  ../higgsCombine.ggH-bbH-split.POINTS.40k.DataBase.NoSMHinBG_3000fb_Asimov.v1.*.MultiDimFit.mH${1}.root

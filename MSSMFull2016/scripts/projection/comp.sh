@@ -1,10 +1,13 @@
 #!/bin/bash
 declare -A ds
 
+do6000=1
+
 d='output/'
 tag='jul17_'
 tag2='jul20_'
 tag3='jul07_'
+tag4='oct28_'
 
 ds_nosys=( ${d}${tag}'lumi-35.9_nosyst/'       ${d}${tag}'lumi-300.0_nosyst/'      ${d}${tag}'lumi-3000.0_nosyst/' )
 ds_nosca=( ${d}${tag}'lumi-35.9/'              ${d}${tag}'lumi-300.0/'             ${d}${tag}'lumi-3000.0/' )
@@ -13,6 +16,9 @@ ds_nosca=( ${d}${tag}'lumi-35.9/'              ${d}${tag}'lumi-300.0/'          
 ds_scsc2=( ${d}${tag}'lumi-35.9_scale-scen2/'  ${d}${tag}'lumi-300.0_scale-scen2/' ${d}${tag}'lumi-3000.0_scale-scen2/' )
 #ds_scnob=( ${d}${tag}'lumi-35.9_scale-scen2_nobbb/' ${d}${tag}'lumi-300.0_scale-scen2_nobbb/' ${d}${tag}'lumi-3000.0_scale-scen2_nobbb/' )
 
+if [ $do6000 -eq 1 ]; then
+    ds_scsc2=( ${d}${tag}'lumi-35.9_scale-scen2/'  ${d}${tag}'lumi-300.0_scale-scen2/' ${d}${tag}'lumi-3000.0_scale-scen2/' ${d}${tag4}'lumi-6000.0_scale-scen2/' )
+fi
 
 pas=1
 
@@ -34,9 +40,16 @@ fi
 #modes=( 'no_systematics' 'no_scaling'  'scale_all' 'scale_bbb' 'scen2' 'scen2_nobbb' )
 #scripts/plotMSSMLimits.py , line 264
 #modes=( 'no_systematics' 'no_scaling'  'scen2' )
-modes=( 'no_scaling'   'scen2'  'no_systematics' )
+#modes=( 'no_scaling'   'scen2'  'no_systematics' )
+modes=( 'scen2' )
 #lumi=(  '35.9_fb^{-1}'   '300_fb^{-1}' '3000_fb^{-1}'          )
 lumi=(  'HIG-17-020'   '300_fb^{-1}' '3000_fb^{-1}'          )
+
+if [ $do6000 -eq 1 ]; then
+    lumi=(  'HIG-17-020'   '300_fb^{-1}' '3000_fb^{-1}' '6000_fb^{-1}'         )
+    suf+='_w6000'
+fi
+
 ds[no_systematics]=ds_nosys[@]
 ds[no_scaling]=ds_nosca[@]
 #ds[scale_all]=ds_scall[@]

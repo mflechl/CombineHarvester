@@ -1,11 +1,13 @@
 #!/bin/bash
 
-lumis=( 35.9 300 3000 )
-odir="jul07"
+#lumis=( 35.9 300 3000 )
+lumis=( 6000 )
+odir="oct28"
 
+modes="all"
 #modes="all mlfit" #model-indep
 #modes="allnp" #model-indep
-modes="mlfit np" #model-indep
+#modes="mlfit np" #model-indep
 #extra=""
 extra="--symdir latest"
 

@@ -1,0 +1,8 @@
+#!/bin/bash
+mass=$1
+step=$2
+for i in `seq 0 $step 40000`; do 
+  if [ $i -lt 40000 ]; then  
+    ls higgsCombine.ggH-bbH-split.POINTS.40k.DataBase.NoSMHinBG_3000fb_Asimov.v1.POINTS.$i.$(($i+$step-1)).MultiDimFit.mH${mass}.root >/dev/null
+  fi
+done

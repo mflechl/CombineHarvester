@@ -31,7 +31,17 @@ parser.add_argument(
 parser.add_argument(
     '--x-axis-max', default=None, help="""x-axis max""")
 parser.add_argument(
+    '--x-axis-scale', default=None, help="""x-axis scaling of histo""")
+parser.add_argument(
+    '--y-axis-scale', default=None, help="""y-axis scaling of histo""")
+parser.add_argument(
+    '--bestfit', action='store_true', help="""Show best-fit point""")
+parser.add_argument(
     '--likelihood-database', action='store_true', help="""Output likelihood database instead of plot""")
+parser.add_argument(
+    '--smooth', action='store_true', help="""Smooth result""")
+parser.add_argument(
+    '--rebin', action='store_true', help="""Rebin input TGraph by 2""")
 parser.add_argument(
     '--debug-output', '-d', help="""If specified, write the contour TH2s and
     TGraphs into this output ROOT file""")
@@ -52,12 +62,32 @@ else:
 limit = plot.MakeTChain(args.files, 'limit')
 
 graph = plot.TGraph2DFromTree(
-    limit, "r_ggH", "r_bbH", '2*deltaNLL', 'quantileExpected > -0.5 && deltaNLL > 0 && deltaNLL < 1000')
-best = plot.TGraphFromTree(
-    limit, "r_ggH", "r_bbH", 'deltaNLL == 0')
-plot.RemoveGraphXDuplicates(best)
+    limit, "r_ggH", "r_bbH", '2*deltaNLL', 'quantileExpected > -0.5 && deltaNLL > 0 && deltaNLL < 1000', args.rebin)
+#    limit, "r_ggH", "r_bbH", '2*deltaNLL', 'quantileExpected > -0.5 && deltaNLL > 0 && deltaNLL < 1000')
+#    limit, "r_ggH", "r_bbH", '2*deltaNLL', 'quantileExpected > -0.5 && deltaNLL > 0 && deltaNLL < 1000 && Entry$%2==0')
+
+if args.bestfit:
+    best = plot.TGraphFromTree(
+        limit, "r_ggH", "r_bbH", 'deltaNLL == 0')
+    plot.RemoveGraphXDuplicates(best)
 hists = plot.TH2FromTGraph2D(graph, method='BinCenterAligned')
-plot.fastFillTH2(hists, graph,interpolateMissing=False)
+#hists = plot.TH2FromTGraph2D(graph, method='BinEdgeAligned')
+
+#plot.fastFillTH2(hists, graph,interpolateMissing=False)
+plot.fastFillTH2(hists, graph,interpolateMissing=True)
+#hists.Rebin2D(2,2)
+#hists.Scale(1./(2*2))
+#hists.Rebin2D(2,1)
+#hists.Scale(1./(2*1))
+
+if args.smooth:
+    it=5
+    if float(args.mass)>125: it=2
+    if float(args.mass)>350: it=1
+    it=1
+    for i in xrange(0,it):  #repeat n=arg2 times                                                                                                                                                   
+        hists.Smooth(1,"k5b")
+
 if args.bg_exp:
     limit_bg = plot.MakeTChain(args.bg_exp, 'limit')
     best_bg = plot.TGraphFromTree(
@@ -70,26 +100,42 @@ if args.sm_exp:
     plot.RemoveGraphXDuplicates(best_sm)
 hists.SetMaximum(6)
 hists.SetMinimum(0)
-hists.SetContour(255)
+hists.SetContour(255) #does not make any difference, set in plotting.py
+
 # c2=ROOT.TCanvas()
 # hists.Draw("COLZ")
 # c2.SaveAs("heatmap.png")
 #Set x and y axis maxima:
 if args.y_axis_max is not None:
     y_axis_max = float(args.y_axis_max)
+elif args.y_axis_scale is not None:
+    y_axis_max = float(hists.GetYaxis().GetXmax())*float(args.y_axis_scale)
 else:
     y_axis_max = float(hists.GetYaxis().GetXmax())
 
 if args.x_axis_max is not None:
    x_axis_max = float(args.x_axis_max)
+elif args.x_axis_scale is not None:
+    x_axis_max = float(hists.GetXaxis().GetXmax())*float(args.x_axis_scale)
 else:
    x_axis_max = float(hists.GetXaxis().GetXmax())
 axis = ROOT.TH2D(hists.GetName(),hists.GetName(),hists.GetXaxis().GetNbins(),0,x_axis_max,hists.GetYaxis().GetNbins(),0,y_axis_max)
 axis.Reset()
+axis.GetYaxis().SetNoExponent()
 axis.GetXaxis().SetTitle(args.x_title)
-axis.GetXaxis().SetLabelSize(0.025)
-axis.GetYaxis().SetLabelSize(0.025)
+axis.GetXaxis().SetLabelSize(0.045) #0.03
+axis.GetYaxis().SetLabelSize(0.045) #0.03
+#axis.GetXaxis().SetTitleOffset(1.0)
+axis.GetYaxis().SetTitleOffset(2.3)
+#axis.GetXaxis().SetLabelSize(0.025)
+#axis.GetYaxis().SetLabelSize(0.025)
 axis.GetYaxis().SetTitle(args.y_title)
+ROOT.gPad.SetLeftMargin(0.22)
+ROOT.gPad.SetRightMargin(0.1)
+
+#axis.GetYaxis().SetNdivisions(505)
+axis.GetXaxis().SetNdivisions(505)
+axis.GetYaxis().SetNdivisions(510)
 
 cont_1sigma = plot.contourFromTH2(hists, ROOT.Math.chisquared_quantile_c(1 - 0.68, 2), 10, frameValue=20)
 cont_2sigma = plot.contourFromTH2(hists, ROOT.Math.chisquared_quantile_c(1 - 0.95, 2), 10, frameValue=20)
@@ -117,7 +163,7 @@ for i, p in enumerate(cont_2sigma):
       p.SetFillColor(ROOT.kBlue-10)
       p.SetFillStyle(1001)
       p.Draw("F SAME")
-      p.Draw("L SAME")
+      p.Draw("C SAME")
       legend.AddEntry(cont_1sigma[0], "68% CL", "F")
 
 for i, p in enumerate(cont_1sigma):
@@ -127,13 +173,15 @@ for i, p in enumerate(cont_1sigma):
       p.SetFillColor(ROOT.kBlue-8)
       p.SetFillStyle(1001)
       p.Draw("F SAME")
-      p.Draw("L SAME")
+      p.Draw("C SAME")
       legend.AddEntry(cont_2sigma[0], "95% CL", "F")
 
-best.SetMarkerStyle(34)
-best.SetMarkerSize(3)
-best.Draw("P SAME")
-legend.AddEntry(best, "Best fit", "P")
+if args.bestfit:
+    best.SetMarkerStyle(34)
+    best.SetMarkerSize(3)
+    best.Draw("P SAME")
+    legend.AddEntry(best, "Best fit", "P")
+
 if args.sm_exp:
     best_sm.SetMarkerStyle(33)
     best_sm.SetMarkerColor(1)

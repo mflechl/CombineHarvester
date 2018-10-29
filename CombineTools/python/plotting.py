@@ -581,8 +581,35 @@ def TGraphFromTree(tree, xvar, yvar, selection):
     return gr
 
 
-def TGraph2DFromTree(tree, xvar,  yvar, zvar, selection):
-    tree.Draw(xvar + ':' + yvar + ':' + zvar, selection, 'goff')
+def TGraph2DFromTree(tree, xvar,  yvar, zvar, selection, rebin2=False):
+#limit->Scan("r_ggH:r_bbH:round((r_bbH-0.0089999)/0.0036)%10","round((r_bbH-0.0089999)/0.0036)%10")
+    rb=0
+    rb2=0
+    rg=0
+    rg2=0
+    ctr=-1
+    sel=selection
+    if rebin2:
+        for i,event in enumerate(tree):
+            if i==1:
+                rb=event.r_bbH
+                rg=event.r_ggH
+                ctr=0
+            if i==3:
+                rb2=(event.r_bbH-rb)/10
+            if ctr>-0.5 and abs(rb-event.r_bbH)<0.0000001:
+                ctr=ctr+1
+#            print ctr,rb,event.r_bbH,rg,event.r_ggH
+                if ctr==3:
+                    rg2=(event.r_ggH-rg)/10
+                    break
+        sel2='round((r_bbH-'+str(rb)+')/'+str(rb2)+')%10'
+        sel3='round((r_ggH-'+str(rg)+')/'+str(rg2)+')%10'
+        sel=selection+' && '+sel2+' && '+sel3
+    print 'XX',sel
+
+    tree.Draw(xvar + ':' + yvar + ':' + zvar, sel, 'goff')
+#   tree.Draw(xvar + ':' + yvar + ':' + zvar, selection, 'goff')
     gr = R.TGraph2D(
         tree.GetSelectedRows(), tree.GetV1(), tree.GetV2(), tree.GetV3())
     return gr
@@ -1646,6 +1673,7 @@ def contourFromTH2(h2in, threshold, minPoints=10, frameValue=1000.):
     canv.cd()
     h2.Draw('CONT Z LIST')
     R.gPad.Update()  # Needed to force the plotting and retrieve the contours in
+    R.gPad.SaveAs('/tmp/x.png')  #otherwise, does not find contours... weird
 
     conts = R.gROOT.GetListOfSpecials().FindObject('contours')
     contLevel = None
@@ -1662,7 +1690,7 @@ def contourFromTH2(h2in, threshold, minPoints=10, frameValue=1000.):
             print'\t Graph %d has %d points' % (j, gr1.GetN())
             if gr1.GetN() > minPoints:
                 ret.Add(gr1.Clone())
-            # // break;
+            break
     # backup.cd()
     canv.Close()
     return ret
