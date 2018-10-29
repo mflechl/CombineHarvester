@@ -17,12 +17,13 @@ if [ "$pas" == "1" ]; then
     lbl="Projection"
     suf="_pas"
 fi
-
+suf+='_w6000'
 
 function plotscen {
 
-  #plotscen ${tag[$i]} ${lab[$i]} ${name[$i]} ${fn[$i]}
+ #plotscen ${tag[$i]} ${lab[$i]} ${name[$i]} ${fn[$i]}
 echo $1 $2 $3 $4
+
 
 for i in ${1}*${3}*; do 
 #    cp -p $i/mssm_mhmod_cmb.png ${od}mssm_mhmod_$i.png; cp -p $i/asymptotic_grid.root ${od}asymptotic_grid_$i.root; 
@@ -42,7 +43,8 @@ sl="${2}, with YR18 syst. uncert."
 #   if [ "${pas}" != "1" ]; then
 #       sl="${2} scenario, S2"
 #   fi
-   python ../scripts/projection/compareLimitMSSM.py ${od}asymptotic_grid_${1}_lumi-35.9_scale-scen2_${3}.root --scenario-label="${sl}" --output="${od}mssm_${3}_${1}_scen2${suf}" --cms-sub="${lbl}" --contours="exp-2,exp-1,exp0,exp+1,exp+2" --x-range 90,2000 $yrange --model_file=/afs/cern.ch/work/m/mflechl/mssm_asymgrid/CMSSW_7_4_7/src/CombineHarvester/MSSMFull2016/shapes/Models/${4}_13TeV.root --extra_contour_file=${od}asymptotic_grid_${1}_lumi-300.0_scale-scen2_${3}.root,${od}asymptotic_grid_${1}_lumi-3000.0_scale-scen2_${3}.root --extra_contour_title='300 fb^{-1}','3000 fb^{-1}' --extra_contour_style=2,2 --extra_contour_color=4,2 | grep -v "has.*points\|Two of these three"
+   python ../scripts/projection/compareLimitMSSM.py ${od}asymptotic_grid_${1}_lumi-35.9_scale-scen2_${3}.root --scenario-label="${sl}" --output="${od}mssm_${3}_${1}_scen2${suf}" --cms-sub="${lbl}" --contours="exp-2,exp-1,exp0,exp+1,exp+2" --x-range 90,2000 $yrange --model_file=/afs/cern.ch/work/m/mflechl/mssm_asymgrid/CMSSW_7_4_7/src/CombineHarvester/MSSMFull2016/shapes/Models/${4}_13TeV.root --extra_contour_file=${od}asymptotic_grid_${1}_lumi-300.0_scale-scen2_${3}.root,${od}asymptotic_grid_${1}_lumi-3000.0_scale-scen2_${3}.root,${od}asymptotic_grid_${5}_lumi-6000.0_scale-scen2_${3}.root --extra_contour_title='300 fb^{-1}','3000 fb^{-1}','6000 fb^{-1}' --extra_contour_style=2,2,2 --extra_contour_color=4,2,1 | grep -v "has.*points\|Two of these three"
+#   python ../scripts/projection/compareLimitMSSM.py ${od}asymptotic_grid_${1}_lumi-35.9_scale-scen2_${3}.root --scenario-label="${sl}" --output="${od}mssm_${3}_${1}_scen2${suf}" --cms-sub="${lbl}" --contours="exp-2,exp-1,exp0,exp+1,exp+2" --x-range 90,2000 $yrange --model_file=/afs/cern.ch/work/m/mflechl/mssm_asymgrid/CMSSW_7_4_7/src/CombineHarvester/MSSMFull2016/shapes/Models/${4}_13TeV.root --extra_contour_file=${od}asymptotic_grid_${1}_lumi-300.0_scale-scen2_${3}.root,${od}asymptotic_grid_${1}_lumi-3000.0_scale-scen2_${3}.root --extra_contour_title='300 fb^{-1}','3000 fb^{-1}' --extra_contour_style=2,2 --extra_contour_color=4,2 | grep -v "has.*points\|Two of these three" #3 lumits
 
 if [ "$pas" == "1" ]; then
     return
@@ -71,12 +73,13 @@ cd output
 mkdir -p ${od}
 
 tag=( "jul31"         "jul31"  "aug03" "aug03" )
+tag4=( "oct25"         "oct25"  "oct25" "aug03" )
 lab=( "m_{h}^{mod+}"  "hMSSM" "tau-phobic" "light-stau" )
 name=( "mhmod"        "hmssm" "tauphobic"  "lightstau" )
 fn=(   "mhmodp_mu200" "hMSSM" "tauphobic" "lightstau1" )
 
-for i in `seq 0 3`; do
-#for i in `seq 1 1`; do
-    plotscen ${tag[$i]} ${lab[$i]} ${name[$i]} ${fn[$i]}
+#for i in `seq 0 2`; do
+#for i in `seq 0 0`; do
+for i in `seq 1 1`; do
+    plotscen ${tag[$i]} ${lab[$i]} ${name[$i]} ${fn[$i]} ${tag4[$i]}
 done
-

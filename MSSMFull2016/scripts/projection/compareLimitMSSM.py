@@ -16,7 +16,7 @@ def manip(hist,typ,mod,lumi):
 
           val=hist.GetBinContent(x,y)
 
-          if mod=='tauphobic' and lumi=='3000.0' and scen=='scen2':
+          if mod=='tauphobic' and ( lumi=='3000.0' or lumi=='6000.0' ) and scen=='scen2':
             if ( (  typ=='exp0' and
                     ( x==78 and (y==16 or y==17) ) or
                     ( x==79 and (y==17 or y==18) ) or
@@ -37,7 +37,7 @@ def manip(hist,typ,mod,lumi):
                  ):
               newval=( 49*hist.GetBinContent(x,y+1) + hist.GetBinContent(x,y-1) )/50.0
               hist.SetBinContent(x,y,newval)
-              print 'ZZ'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+' ==> '+str(newval)
+#1              print 'ZZ'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+' ==> '+str(newval)
               continue
 
           if mod=='tauphobic' and lumi=='300.0' and scen=='scen2':
@@ -59,7 +59,7 @@ def manip(hist,typ,mod,lumi):
                   ):
               newval=0.04 #( 99*hist.GetBinContent(x,y+1) + hist.GetBinContent(x,y-1) )/100.0                                                         
               hist.SetBinContent(x,y,newval)
-              print 'ZZ'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+' ==> '+str(newval)
+#1              print 'ZZ'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+' ==> '+str(newval)
               continue
             if (  typ=='exp0' and
                   ( x==66 and (y>=16 and y<=17) ) or
@@ -70,15 +70,27 @@ def manip(hist,typ,mod,lumi):
                   ):
               newval=0.06 #( 99*hist.GetBinContent(x,y+1) + hist.GetBinContent(x,y-1) )/100.0                                                         
               hist.SetBinContent(x,y,newval)
-              print 'ZZ'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+' ==> '+str(newval)
+#1              print 'ZZ'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+' ==> '+str(newval)
               continue
 
-          if mod=='tauphobic' and ( lumi=='3000.0' or lumi=='300.0' ) and (x==0 or x==1 or x==2):
+          if mod=='tauphobic' and ( lumi=='6000.0' or lumi=='3000.0' or lumi=='300.0' ) and (x==0 or x==1 or x==2):
             newval=0.01
             hist.SetBinContent(x,y,newval)
-            print 'YY'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+' ==> '+str(newval)
+#2            print 'YY'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+' ==> '+str(newval)
+#          elif mod=='hmssm' and lumi=='6000.0' and x<10:
+#            newval=0.01
+#            hist.SetBinContent(x,y,newval)
+#2            print 'YY'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+' ==> '+str(newval)
+          elif mod=='hmssm' and lumi=='6000.0' and x<15 and y>5:
+            newval=0.01
+            hist.SetBinContent(x,y,newval)
+#2            print 'YY'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+' ==> '+str(newval)
+          elif mod=='mhmod' and lumi=='6000.0' and x>=48: #from 2000
+            newval=hist.GetBinContent(x-1,y)
+            hist.SetBinContent(x,y,newval)
+#2            print 'YY'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+' ==> '+str(newval)
           elif isnan(val) or val<1e-12:
-#              print 'XX'+typ+'    '+str(hist.GetBinLowEdge(x))+' / '+str(hist.GetBinLowy)+' = '+str(hist.GetBinContent(x,y))                          
+##              print 'XX'+typ+'    '+str(hist.GetBinLowEdge(x))+' / '+str(hist.GetBinLowy)+' = '+str(hist.GetBinContent(x,y))                          
               babove=hist.GetBinContent(x,y+1)
               bbelow=hist.GetBinContent(x,y-1)
               bleft=hist.GetBinContent(x-1,y)
@@ -92,7 +104,7 @@ def manip(hist,typ,mod,lumi):
               elif bright > 1e-12: newval=bright #                                                                                                     
 #              if mod=='hmssm' and ( lumi=='3000.0' or lumi=='300.0' ):
 #                if x==1: newval=0.01
-              print 'XX'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+' ==> '+str(newval)
+#1              print 'XX'+typ+'    '+str(hist.GetXaxis().GetBinCenter(x))+' / '+str(hist.GetYaxis().GetBinCenter(y))+' = '+str(val)+' ==> '+str(newval)
               hist.SetBinContent(x,y,newval)
   hist.SaveAs('hist_'+typ+'_after.C')
 
@@ -187,9 +199,11 @@ CL = 1 - args.CL
 lumi='35.9'
 if '300.0' in args.output: lumi='300.0'
 if '3000.0' in args.output: lumi='3000.0'
+if '6000.0' in args.output: lumi='6000.0'
 
 mod=''
 if 'hmssm' in args.output: mod='hmssm'
+elif 'mhmod' in args.output: mod='mhmod'
 elif 'tauphobic' in args.output: mod='tauphobic'
 
 scen=''
@@ -215,6 +229,7 @@ if args.extra_contour_file is not None:
       lumi_='35.9'
       if '300.0' in f: lumi_='300.0'
       if '3000.0' in f: lumi_='3000.0'
+      if '6000.0' in f: lumi_='6000.0'
       extralumi.append(lumi_)
 
 print 'MMM',extralumi
@@ -258,6 +273,14 @@ for i,g in enumerate(extragraphs):
     plot.fillTH2(extrahists[i], g)
     manip(extrahists[i],'exp0',mod,extralumi[i])
     extracontours[i] = plot.contourFromTH2(extrahists[i], CL, 5, frameValue=1)
+#    print 'EE1', extracontours[i]
+#    print 'EE2', extracontours[i].Last()
+#    print 'EE3', extracontours[i].GetSize()
+#    print 'EE4', extracontours[i].Last().GetN()
+#    print 'EE5', extracontours[i].Last().GetX()[extracontours[i].Last().GetN()-1]
+#    if mod=='mhmod' and lumi=='6000.0':
+#      extracontours[i].Last().SetPoint(extracontours[i].Last().GetN()-1,2050,extracontours[i].Last().GetY()[extracontours[i].Last().GetN()-1])
+#    print 'EE6', extracontours[i].Last().GetX()[extracontours[i].Last().GetN()-1]
 
 #Extract mh contours if mh histogram exists:
 if h_mh is not None:
